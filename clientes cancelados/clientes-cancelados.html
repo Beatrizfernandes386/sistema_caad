@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clientes Cancelados - CAAD</title>
+  <link rel="stylesheet" href="../assets/css/clientes-cancelados.css"> <!-- Verifique se esse caminho está correto -->
+</head>
+<body>
+
+  <header>
+    <h1>Clientes Cancelados</h1>
+  </header>
+
+  <nav class="navigation">
+    <a class="nav-btn" href="../dashboard/dashboard.html">Dashboard</a>
+    <a class="nav-btn" href="../clientes ativos/clientes-ativos.html">Clientes Ativos</a>
+    <a class="nav-btn" href="../clientes cancelados/clientes-cancelados.html">Clientes Cancelados</a>
+    <a class="nav-btn" href="../estoque/estoque.html">Estoque</a>
+    <a class="nav-btn" href="../equipamentos perdidos/equipamentos-perdidos.html">Equipamentos Perdidos</a>
+    <a class="nav-btn" href="../planos/planos.html">Planos</a>
+  </nav>  
+
+
+  <section class="filter-import">
+    <input type="text" id="filtro-cancelados" class="filter-input" placeholder="Buscar por nome ou motivo...">
+  </section>
+
+  <section id="clientes-cancelados-tabela">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data Instalação</th>
+          <th>Motivo</th>
+          <th>Data Exclusão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas inseridas via JavaScript -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Importa o script JS -->
+  <script src="script-clientes-cancelados.js"></script>
+</body>
+</html>

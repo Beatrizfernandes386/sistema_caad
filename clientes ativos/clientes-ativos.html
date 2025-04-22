@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clientes Ativos</title>
+  <link rel="stylesheet" href="../assets/css/clientes-ativos.css" />
+</head>
+<body>
+  <!-- Cabeçalho -->
+  <header>
+    <h1>Clientes Ativos</h1>
+  </header>
+
+  <!-- Navegação -->
+  <nav class="navigation">
+    <a href="../dashboard/dashboard.html" class="nav-btn">Dashboard</a>
+    <a href="../clientes ativos/clientes-ativos.html" class="nav-btn active">Clientes Ativos</a>
+    <a href="../clientes cancelados/clientes-cancelados.html" class="nav-btn">Clientes Cancelados</a>
+    <a href="../estoque/estoque.html" class="nav-btn">Estoque</a>
+    <a href="../equipamentos perdidos/equipamentos-perdidos.html" class="nav-btn">Equipamentos Perdidos</a>
+    <a href="../planos/planos.html" class="nav-btn">Planos</a>
+  </nav>
+
+  <!-- Filtro de pesquisa e Importação -->
+  <section class="filter-import">
+    <input type="text" id="filtro-input" class="filter-input" placeholder="Buscar por nome..." />
+    <button class="import-btn" id="importar-btn">Importar Dados</button>
+  </section>
+
+  <!-- Botões de Ação -->
+  <section class="action-buttons">
+    <button id="cadastrar-btn" class="action-btn">Cadastrar Cliente</button>
+    <button id="editar-btn" class="action-btn">Editar Cliente</button>
+    <button id="excluir-btn" class="action-btn">Excluir Cliente</button>
+  </section>
+
+  <input type="file" id="importar-json" accept=".json" style="display: none;" />
+
+
+  <!-- Tabela de Clientes -->
+  <section class="tabela">
+    <table id="tabela-clientes-ativos">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Plano</th>
+          <th>Modelo</th>
+          <th>Veículo</th>
+          <th>IMEI</th>
+          <th>Linha</th>
+          <th>Serviço</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-clientes-ativos">
+        <!-- os dados serão inseridos aqui via JavaScript -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Modal Cadastro -->
+  <div id="form-cadastro" class="form-popup hidden">
+    <div class="form-popup-conteudo">
+      <span id="fechar-cadastro" class="fechar">&times;</span>
+      <h2>Cadastrar Cliente</h2>
+      <form id="form-cadastro-element">
+        <input type="text" id="nome" placeholder="Nome" required />
+        <select id="plano" required>
+          <option value="">Plano</option>
+          <option value="BASIC">BASIC</option>
+          <option value="ELITE">ELITE</option>
+          <option value="MASTER">MASTER</option>
+        </select>
+
+        <select id="veiculo" required>
+          <option value="">Veículo</option>
+          <option value="MOTO">MOTO</option>
+          <option value="CARRO">CARRO</option>
+          <option value="CAMINHÃO">CAMINHÃO</option>
+        </select>
+
+        <select id="modelo" required>
+          <option value="">Modelo</option>
+          <option value="GV50">GV50</option>
+          <option value="GV55">GV55</option>
+          <option value="TK">TK</option>
+          <option value="F1">F1</option>
+          <option value="CRX">CRX</option>
+          <option value="CRX4G">CRX4G</option>
+        </select>
+
+        <select id="imei" required></select>
+        <select id="linha" required></select>
+        <select id="servico" required>
+          <option value="">Serviço</option>
+          <option value="INSTALAÇÃO">INSTALAÇÃO</option>
+          <option value="TRANSFERÊNCIA DE CONTRATO">TRANSFERÊNCIA DE CONTRATO</option>
+          <option value="ATIVAÇÃO">ATIVAÇÃO</option>
+        </select>
+        
+        <input type="date" id="data" required />  
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+ <!-- Modal Edição -->
+<div id="form-edicao" class="form-popup hidden">
+  <div class="form-popup-conteudo">
+    <span id="fechar-edicao" class="fechar">&times;</span>
+    <h2>Editar Cliente</h2>
+    <form id="form-edicao-element">
+      <select id="cliente-edicao" required>
+        <option value="">Selecione o cliente</option>
+      </select>
+      <select id="plano-edicao" required>
+        <option value="">Plano</option>
+        <option value="BASIC">BASIC</option>
+        <option value="ELITE">ELITE</option>
+        <option value="MASTER">MASTER</option>
+      </select>
+      <select id="modelo-edicao" required></select>
+      <select id="imei-edicao" required></select>
+      <select id="linha-edicao" required></select>
+      <button type="submit">Atualizar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Exclusão -->
+<div id="form-exclusao" class="form-popup hidden">
+  <div class="form-popup-conteudo">
+    <span id="fechar-exclusao" class="fechar">&times;</span>
+    <h2>Excluir Cliente</h2>
+    <form id="form-exclusao-element">
+      <select id="cliente-exclusao" required>
+        <option value="">Selecione o cliente</option>
+      </select>
+      <input type="text" id="motivo-exclusao-element" placeholder="Motivo do cancelamento" required />
+      <input type="date" id="data-exclusao" required />
+      <button type="submit">Excluir</button>
+    </form>
+  </div>
+</div>
+
+  <script src="script-clientes-ativos.js"></script>
+</body>
+</html>

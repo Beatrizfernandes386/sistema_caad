@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estoque - CAAD</title>
+  <link rel="stylesheet" href="../assets/css/estoque.css">
+</head>
+<body>
+  <header>
+    <h1>Estoque</h1>
+  </header>
+
+  <nav class="navigation">
+    <a class="nav-btn" href="../dashboard/dashboard.html">Dashboard</a>
+    <a class="nav-btn" href="../clientes ativos/clientes-ativos.html">Clientes Ativos</a>
+    <a class="nav-btn" href="../clientes cancelados/clientes-cancelados.html">Clientes Cancelados</a>
+    <a class="nav-btn" href="../estoque/estoque.html">Estoque</a>
+    <a class="nav-btn" href="../equipamentos perdidos/equipamentos-perdidos.html">Equipamentos Perdidos</a>
+    <a class="nav-btn" href="../planos/planos.html">Planos</a>
+  </nav>  
+
+  <div class="action-buttons">
+    <button class="action-btn" onclick="toggleForm('form-equipamento')">Cadastrar Equipamento</button>
+    <button class="action-btn" onclick="toggleForm('form-chip')">Cadastrar Chip</button>
+    <button class="action-btn" onclick="toggleForm('form-excluir')">Excluir</button>
+  </div>
+
+  <div id="form-equipamento" class="form-container">
+    <form id="formCadastrarEquipamento">
+      <select id="modelo-equipamento" required>
+        <option value="">Modelo</option>
+        <option value="GV50">GV50</option>
+        <option value="GV55">GV55</option>
+        <option value="TK">TK</option>
+        <option value="F1">F1</option>
+        <option value="CRX">CRX</option>
+        <option value="CRX4G">CRX4G</option>
+      </select>
+      <input type="text" id="imei-equipamento" placeholder="IMEI" required />
+      <button type="submit">Cadastrar</button>
+    </form>
+  </div>
+
+  <div id="form-chip" class="form-container">
+    <form id="formCadastrarChip">
+      <input type="text" id="linha-chip" placeholder="Linha" required />
+      <select id="status-chip" required>
+        <option value="">Status</option>
+        <option value="ATIVO">ATIVO</option>
+        <option value="BLOQUEADO">BLOQUEADO</option>
+      </select>
+      <button type="submit">Cadastrar</button>
+    </form>
+  </div>
+
+  <div id="form-excluir" class="form-container">
+    <form id="formExcluirEquipamento">
+      <label for="imei-excluir">Selecionar IMEI:</label>
+      <select id="imei-excluir" required>
+        <option value="">Selecione o IMEI</option>
+      </select>
+    
+      <label for="modelo-excluir">Modelo:</label>
+      <input type="text" id="modelo-excluir" readonly />
+    
+      <label for="linha-excluir">Linha:</label>
+      <input type="text" id="linha-excluir" readonly />
+    
+      <label for="data-excluir">Data:</label>
+      <input type="date" id="data-excluir" required />
+    
+      <label for="motivo-excluir">Motivo:</label>
+      <input type="text" id="motivo-excluir" required />
+    
+      <label for="status-chip-excluir">Status do Chip:</label>
+      <select id="status-chip-excluir" required>
+        <option value="">Status do Chip</option>
+        <option value="ATIVO">ATIVO</option>
+        <option value="CANCELADO">CANCELADO</option>
+      </select>
+    
+      <button type="submit">Excluir</button>
+    </form>    
+  </div>
+  
+
+  <section id="estoque-tabelas">
+    <h2>Equipamentos Novos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>IMEI</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-equipamentos-novos">
+        <!-- Dados de equipamentos novos -->
+      </tbody>
+    </table>
+
+    <h2>Equipamentos Usados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>IMEI</th>
+          <th>Linha</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-equipamentos-usados"></tbody>
+    </table>
+
+    <h2>Chips</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Linha</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-chips">
+        <!-- Dados de chips -->
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    function toggleForm(id) {
+      const form = document.getElementById(id);
+      form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
+  <script src="script-estoque.js"></script>
+</body>
+</html>

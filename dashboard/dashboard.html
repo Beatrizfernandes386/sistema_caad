@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Cabeçalho -->
+  <header>
+    <div class="logo">
+      <h1>Caad Rastreamento</h1>
+    </div>
+  </header>
+
+  <!-- Menu de Navegação -->
+  <nav class="navigation">
+    <a class="nav-btn" href="../dashboard/dashboard.html">Dashboard</a>
+    <a class="nav-btn" href="../clientes ativos/clientes-ativos.html">Clientes Ativos</a>
+    <a class="nav-btn" href="../clientes cancelados/clientes-cancelados.html">Clientes Cancelados</a>
+    <a class="nav-btn" href="../estoque/estoque.html">Estoque</a>
+    <a class="nav-btn" href="../equipamentos perdidos/equipamentos-perdidos.html">Equipamentos Perdidos</a>
+    <a class="nav-btn" href="../planos/planos.html">Planos</a>
+  </nav>  
+
+  <!-- Conteúdo principal -->
+  <main>
+    <section class="panel">
+      <h2>Visão Geral</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Clientes Ativos</h3>
+          <p id="clientes-ativos">0</p>
+        </div>
+        <div class="card">
+          <h3>Instalações no Mês</h3>
+          <p id="instalacoes-mes">0</p>
+        </div>
+        <div class="card">
+          <h3>Cancelamentos no Mês</h3>
+          <p id="cancelamentos-mes">0</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Distribuição dos Planos</h2>
+      <canvas id="graficoPlanos" width="400" height="400"></canvas>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Meu Sistema</p>
+  </footer>
+
+  <script src="../dashboard/dashboard.js"></script>
+</body>
+</html>

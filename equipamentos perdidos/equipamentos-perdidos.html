@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Equipamentos Perdidos - CAAD</title>
+  <link rel="stylesheet" href="../assets/css/equipamentos-perdidos.css">
+</head>
+<body>
+  <header>
+    <h1>Equipamentos Perdidos</h1>
+  </header>
+
+  <nav class="navigation">
+    <a class="nav-btn" href="../dashboard/dashboard.html">Dashboard</a>
+    <a class="nav-btn" href="../clientes ativos/clientes-ativos.html">Clientes Ativos</a>
+    <a class="nav-btn" href="../clientes cancelados/clientes-cancelados.html">Clientes Cancelados</a>
+    <a class="nav-btn" href="../estoque/estoque.html">Estoque</a>
+    <a class="nav-btn" href="../equipamentos perdidos/equipamentos-perdidos.html">Equipamentos Perdidos</a>
+    <a class="nav-btn" href="../planos/planos.html">Planos</a>
+  </nav>  s
+
+  <section id="tabela-equipamentos-perdidos">
+    <h2>Histórico de Equipamentos Perdidos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>IMEI</th>
+          <th>Linha</th>
+          <th>Data</th>
+          <th>Motivo</th>
+          <th>Status do Chip</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-perdidos-body">
+        <!-- Preenchido via JavaScript -->
+      </tbody>
+    </table>
+  </section>
+
+  <script src="script-equipamentos-perdidos.js"></script>
+</body>
+</html>

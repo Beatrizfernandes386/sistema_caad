@@ -1,0 +1,73 @@
+/* Reset e fonte base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Paleta */
+:root {
+    --laranja: #e67e22;
+    --preto: #000000;
+    --cinza: #bdc3c7;
+    --cinza-escuro: #2c2c2c;
+    --branco: #ffffff;
+}
+
+/* Fundo gradiente */
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, var(--preto) 60%, var(--laranja));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container central do login */
+.login-container {
+    background-color: var(--cinza-escuro);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-container h2 {
+    color: var(--laranja);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+    color: var(--branco);
+    font-size: 16px;
+}
+
+.login-container input::placeholder {
+    color: #aaa;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--laranja);
+    border: none;
+    border-radius: 8px;
+    color: var(--branco);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-container button:hover {
+    background-color: #cf711c;
+}

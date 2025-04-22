@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planos - CAAD</title>
+  <link rel="stylesheet" href="../assets/css/planos.css">
+</head>
+<body>
+
+  <header>
+    <h1>CAAD - Planos</h1>
+  </header>
+
+  <nav class="navigation">
+    <a class="nav-btn" href="../dashboard/dashboard.html">Dashboard</a>
+    <a class="nav-btn" href="../clientes ativos/clientes-ativos.html">Clientes Ativos</a>
+    <a class="nav-btn" href="../clientes cancelados/clientes-cancelados.html">Clientes Cancelados</a>
+    <a class="nav-btn" href="../estoque/estoque.html">Estoque</a>
+    <a class="nav-btn" href="../equipamentos perdidos/equipamentos-perdidos.html">Equipamentos Perdidos</a>
+    <a class="nav-btn" href="../planos/planos.html">Planos</a>
+  </nav>  
+
+  <div class="filter-import">
+    <input type="text" id="filtro" class="filter-input" placeholder="Buscar por nome ou plano...">
+  </div>
+
+  <section class="plano-section">
+    <h2>BASIC (<span id="basic-count">0</span> cadastros)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data de Cadastro</th>
+        </tr>
+      </thead>
+      <tbody id="basic-tbody"></tbody>
+    </table>
+  </section>
+
+  <section class="plano-section">
+    <h2>ELITE (<span id="elite-count">0</span> cadastros)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data de Cadastro</th>
+        </tr>
+      </thead>
+      <tbody id="elite-tbody"></tbody>
+    </table>
+  </section>
+
+  <section class="plano-section">
+    <h2>MASTER (<span id="master-count">0</span> cadastros)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data de Cadastro</th>
+          <th>Troca de Bateria</th>
+          <th>Pane Seca</th>
+          <th>Reboque</th>
+        </tr>
+      </thead>
+      <tbody id="master-tbody"></tbody>
+    </table>
+  </section>
+
+  <script src="script-planos.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+header {
+  background-color: #e67e22;
+  padding: 1rem;
+  color: white;
+  text-align: center;
+}
+
+.navigation {
+  display: flex;
+  justify-content: center;
+  background-color: #333;
+  padding: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  margin: 0.2rem;
+  border-radius: 5px;
+  background-color: transparent;
+  border: 1px solid white;
+  transition: background-color 0.3s;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background-color: #e67e22;
+  border-color: #e67e22;
+}
+
+.action-buttons {
+  text-align: center;
+  margin: 1rem;
+}
+  
+  .nav-btn:hover,
+  .nav-btn.active {
+    background-color: #e67e22;
+    color: #fff;
+  }
+  
+  /* Botões de ações */
+  .action-buttons {
+    text-align: center;
+    margin: 2rem 0;
+  }
+  
+  .action-btn {
+    background-color: #333;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    margin: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+  }
+  
+  .action-btn:hover {
+    background-color: #e67e22;
+  }
+  
+  /* Formulários */
+  .form-container {
+    display: none;
+    background-color: #fff;
+    padding: 2rem;
+    margin: 0 auto 2rem auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  form input,
+  form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  form button {
+    background-color: #e67e22;
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  form button:hover {
+    background-color: #d25d18;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  thead {
+    background-color: #e67e22;
+    color: white;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
