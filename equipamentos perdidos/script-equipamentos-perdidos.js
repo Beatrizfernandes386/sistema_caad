@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${item.linha || "-"}</td>
         <td>${item.motivo}</td>
         <td>${item.data}</td>
+        <td>${item.statusChip || "-"}</td>
       `;
       corpoTabela.appendChild(tr);
     });

@@ -131,7 +131,7 @@ document.getElementById("formExcluirEquipamento")?.addEventListener("submit", (e
   }
 
   // Remove do estoque de usados
-  estoqueUsados = estoqueUsados.filter(e => e.imei !== imei);
+  estoqueUsados = estoqueUsados.filter(equipamento => equipamento.imei !== imei);
   localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
 
   // Se ATIVO, devolve o chip ao estoque
@@ -139,10 +139,21 @@ document.getElementById("formExcluirEquipamento")?.addEventListener("submit", (e
     estoqueChips.push({ linha, status: "ATIVO" });
     localStorage.setItem("estoqueChips", JSON.stringify(estoqueChips));
   }
+  
+  // Formatar a data para PT-BR (dd/mm/yyyy)
+  const partesData = data.split("-");
+  const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
 
   // Adiciona aos equipamentos perdidos
-  const equipamentosPerdidos = JSON.parse(localStorage.getItem("equipamentosPerdidos")) || [];
-  equipamentosPerdidos.push({ modelo, imei, linha, data, motivo, statusChip });
+  let equipamentosPerdidos = JSON.parse(localStorage.getItem("equipamentosPerdidos")) || [];
+  equipamentosPerdidos.push({
+    modelo,
+    imei,
+    linha,
+    data: dataFormatada,
+    motivo,
+    statusChip
+  });
   localStorage.setItem("equipamentosPerdidos", JSON.stringify(equipamentosPerdidos));
 
   // Atualiza a visualização

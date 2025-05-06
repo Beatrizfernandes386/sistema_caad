@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sinistros</title>
+  <link rel="stylesheet" href="../assets/css/sinistros.css" />
+</head>
+<body>
+  <!-- Cabeçalho -->
+  <header>
+    <h1>Sinistros</h1>
+  </header>
+
+  <!-- Navegação -->
+  <nav class="navigation">
+    <a href="../dashboard/dashboard.html" class="nav-btn">Dashboard</a>
+    <a href="../clientes ativos/clientes-ativos.html" class="nav-btn">Clientes Ativos</a>
+    <a href="../clientes cancelados/clientes-cancelados.html" class="nav-btn">Clientes Cancelados</a>
+    <a href="../estoque/estoque.html" class="nav-btn">Estoque</a>
+    <a href="../equipamentos perdidos/equipamentos-perdidos.html" class="nav-btn">Equipamentos Perdidos</a>
+    <a href="../planos/planos.html" class="nav-btn">Planos</a>
+    <a href="../sinistros/sinistros.html" class="nav-btn active">Sinistros</a>
+  </nav>
+
+  <!-- Campo de pesquisa -->
+  <div class="filtro-pesquisa">
+    <input type="text" id="filtro-sinistros" placeholder="Pesquisar sinistros...">
+  </div>
+
+  <!-- Botões de Ação -->
+  <div class="action-buttons">
+    <button id="abrir-modal" class="action-btn">Novo Sinistro</button>
+    <input type="file" id="importar-sinistros" accept=".json" />
+  </div>
+
+  <!-- Modal de Cadastro -->
+  <div id="modal-cadastro" class="modal">
+    <div class="modal-content">
+      <h2>Cadastro de Sinistro</h2>
+      <form id="form-sinistro">
+        <div class="form-group">
+          <label for="cliente">Cliente:</label>
+          <input type="text" id="cliente" required>
+        </div>
+
+        <div class="form-group">
+          <label for="modelo">Modelo do Veículo:</label>
+          <input type="text" id="modelo" required>
+        </div>
+
+        <div class="form-group">
+          <label for="localSinistro">Local do Sinistro:</label>
+          <input type="text" id="localSinistro" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data">Data:</label>
+            <input type="date" id="data" required>
+          </div>
+
+          <div class="form-group">
+            <label for="horaInforme">Hora do Informe:</label>
+            <input type="time" id="horaInforme" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="horas">Tempo de Operação:</label>
+            <input type="number" id="horas" placeholder="Horas" min="0" style="width: 70px;"> h
+            <input type="number" id="minutos" placeholder="Minutos" min="0" max="59" style="width: 70px;"> min
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="localRecuperacao">Local da Recuperação:</label>
+          <input type="text" id="localRecuperacao" required>
+        </div>
+
+        <div class="form-group">
+          <label for="relatorio">Relatório da Operação:</label>
+          <textarea id="relatorio" rows="3" required></textarea>
+        </div>
+
+        <div class="botoes-formulario">
+          <button type="submit" class="btn salvar">Salvar Sinistro</button>
+          <button type="button" class="btn fechar" id="fechar-modal">Fechar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela de Sinistros -->
+  <section>
+    <h2>Sinistros Registrados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Veículo</th>
+          <th>Local do Sinistro</th>
+          <th>Data</th>
+          <th>Hora do Informe</th>
+          <th>Tempo de Operação</th>
+          <th>Local da Recuperação</th>
+          <th>Relatório</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-sinistros"></tbody>
+    </table>
+  </section>
+
+  <!-- Modal de Relatório -->
+  <div id="modal-relatorio" class="modal">
+    <div class="modal-content">
+      <h3>Relatório da Operação</h3>
+      <p id="texto-relatorio"></p>
+      <button onclick="fecharRelatorio()">Fechar</button>
+    </div>
+  </div>
+
+  <script src="script-sinistros.js"></script>
+</body>
+</html>

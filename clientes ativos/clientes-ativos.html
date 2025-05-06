@@ -20,6 +20,7 @@
     <a href="../estoque/estoque.html" class="nav-btn">Estoque</a>
     <a href="../equipamentos perdidos/equipamentos-perdidos.html" class="nav-btn">Equipamentos Perdidos</a>
     <a href="../planos/planos.html" class="nav-btn">Planos</a>
+    <a href="../sinistros/sinistros.html" class="nav-btn">Sinistros</a>
   </nav>
 
   <!-- Filtro de pesquisa e Importação -->
@@ -45,8 +46,8 @@
         <tr>
           <th>Nome</th>
           <th>Plano</th>
-          <th>Modelo</th>
           <th>Veículo</th>
+          <th>Modelo</th>
           <th>IMEI</th>
           <th>Linha</th>
           <th>Serviço</th>
@@ -87,7 +88,7 @@
           <option value="TK">TK</option>
           <option value="F1">F1</option>
           <option value="CRX">CRX</option>
-          <option value="CRX4G">CRX4G</option>
+          <option value="CRX4G+">CRX4G</option>
         </select>
 
         <select id="imei" required></select>
@@ -120,6 +121,12 @@
         <option value="ELITE">ELITE</option>
         <option value="MASTER">MASTER</option>
       </select>
+      <select id="veiculo" required>
+        <option value="">Veículo</option>
+        <option value="MOTO">MOTO</option>
+        <option value="CARRO">CARRO</option>
+        <option value="CAMINHÃO">CAMINHÃO</option>
+      </select>
       <select id="modelo-edicao" required></select>
       <select id="imei-edicao" required></select>
       <select id="linha-edicao" required></select>
@@ -139,11 +146,24 @@
       </select>
       <input type="text" id="motivo-exclusao-element" placeholder="Motivo do cancelamento" required />
       <input type="date" id="data-exclusao" required />
-      <button type="submit">Excluir</button>
+      <button type="button" id="btn-excluir-modal">Excluir</button>
     </form>
   </div>
 </div>
 
-  <script src="script-clientes-ativos.js"></script>
+<div id="popup-confirmacao" class="popup-overlay" style="display: none;">
+  <div class="popup-content">
+    <p id="popup-mensagem"></p>
+    <div class="popup-buttons">
+      <button id="popup-sim" class="popup-btn-sim">Sim</button>
+      <button id="popup-cancelar" class="popup-btn-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script src="script-clientes-ativos.js"></script>
+<script src="cadastro-clientes.js"></script>
+<script src="edicao-clientes.js"></script>
+<script src="exclusao-clientes.js"></script>
 </body>
 </html>
