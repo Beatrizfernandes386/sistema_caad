@@ -1,0 +1,107 @@
+/* Estilo base */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+/* Cabeçalho */
+header {
+  background-color: #e67e22;
+  padding: 1rem;
+  color: white;
+  text-align: center;
+}
+
+/* Navegação */
+.navigation {
+  display: flex;
+  justify-content: center;
+  background-color: #333;
+  padding: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  margin: 0.2rem;
+  border-radius: 5px;
+  background-color: transparent;
+  border: 1px solid white;
+  transition: background-color 0.3s;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+  background-color: #e67e22;
+  border-color: #e67e22;
+}
+
+/* Botões de ação */
+.action-buttons {
+  text-align: center;
+  margin: 1.5rem auto 1rem auto;
+  max-width: 90%;
+  display: flex;
+  justify-content: center; /* antes era space-between */
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  background-color: #080807;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.action-btn:hover {
+  background-color: #e67e22;
+}
+
+/* Título da seção */
+h2 {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #333;
+}
+
+/* Tabela de sinistros */
+.table-container {
+  max-width: 95%;
+  margin: 1.5rem auto;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #e67e22;
+  color: white;
+  font-weight: bold;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}

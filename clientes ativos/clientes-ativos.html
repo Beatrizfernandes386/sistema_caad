@@ -146,17 +146,18 @@
       </select>
       <input type="text" id="motivo-exclusao-element" placeholder="Motivo do cancelamento" required />
       <input type="date" id="data-exclusao" required />
-      <button type="button" id="btn-excluir-modal">Excluir</button>
+      <button id="confirmar-exclusao">Excluir Cliente</button>
     </form>
   </div>
 </div>
 
-<div id="popup-confirmacao" class="popup-overlay" style="display: none;">
-  <div class="popup-content">
-    <p id="popup-mensagem"></p>
-    <div class="popup-buttons">
-      <button id="popup-sim" class="popup-btn-sim">Sim</button>
-      <button id="popup-cancelar" class="popup-btn-cancelar">Cancelar</button>
+<!-- POP-UP DE CONFIRMAÇÃO REUTILIZÁVEL -->
+<div id="popup-confirmacao" class="popup-overlay hidden">
+  <div class="popup-container">
+    <p id="popup-mensagem" class="popup-text">Mensagem dinâmica aqui</p>
+    <div class="popup-botoes">
+      <button id="popup-sim" class="popup-btn confirmar">Sim</button>
+      <button id="popup-cancelar" class="popup-btn cancelar">Cancelar</button>
     </div>
   </div>
 </div>
@@ -165,5 +166,10 @@
 <script src="cadastro-clientes.js"></script>
 <script src="edicao-clientes.js"></script>
 <script src="exclusao-clientes.js"></script>
+
+<script src="../assets/js/seguranca.js"></script>
+<script>
+  verificarAcesso();
+</script>
 </body>
 </html>

@@ -17,7 +17,11 @@ btnEditar.addEventListener("click", () => {
   abrirModal(modalEdicao);
 });
 
-fecharEdicao.addEventListener("click", () => modalEdicao.classList.add("hidden"));
+fecharEdicao.addEventListener("click", () => {
+  modalEdicao.classList.add("hidden");
+  document.getElementById("form-edicao-element").reset();
+});
+
 
 function abrirModal(modal) {
   modal.classList.remove("hidden");
@@ -145,68 +149,67 @@ document.getElementById("form-edicao-element").addEventListener("submit", (e) =>
   const novoPlano = planoEdicao.value;
   const novoVeiculo = veiculoEdicao.value;
   const novoModelo = modeloEdicao.value;
-  const novoImei = imeiEdicao.value || clienteAntigo.imei;
-  const novaLinha = linhaEdicao.value || clienteAntigo.linha;
+  const novoImei = imeiEdicao.value;
+  const novaLinha = linhaEdicao.value;
 
-  const equipamentoAlterado = clienteAntigo.imei !== novoImei;
-  const linhaAlterada = clienteAntigo.linha !== novaLinha;
+  // Flags para saber se houve alterações
+  const planoAlterado = novoPlano !== clienteAntigo.plano;
+  const veiculoAlterado = novoVeiculo !== clienteAntigo.veiculo;
+  const equipamentoAlterado = novoImei && novoImei !== clienteAntigo.imei;
+  const linhaAlterada = novaLinha && novaLinha !== clienteAntigo.linha;
 
-  // Carrega os estoques
   let estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos")) || [];
   let estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados")) || [];
   let chips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
 
-  // Se houve troca de equipamento ou linha
-  if (equipamentoAlterado || linhaAlterada) {
-    // Devolve o equipamento antigo para o estoque de usados
+  // Se trocou de equipamento, devolver o antigo ao estoque e remover o novo
+  if (equipamentoAlterado) {
     estoqueUsados.push({
       modelo: clienteAntigo.modelo,
       imei: clienteAntigo.imei,
       linha: clienteAntigo.linha
     });
 
-    console.log("Equipamento antigo devolvido ao estoque de usados:", clienteAntigo.modelo, clienteAntigo.imei, clienteAntigo.linha);
-
-    // Remove o novo IMEI dos estoques, se ele existir
-const imeiAlvo = novoImei.trim();
-const linhaAlvo = novaLinha.trim();
-
-const antesNovos = estoqueNovos.length;
-const antesUsados = estoqueUsados.length;
-const antesChips = chips.length;
-
-estoqueNovos = estoqueNovos.filter(eq => eq.imei && eq.imei.trim() !== imeiAlvo);
-estoqueUsados = estoqueUsados.filter(eq => eq.imei && eq.imei.trim() !== imeiAlvo);
-
-chips = chips.filter(chip => chip.linha && chip.linha.trim() !== linhaAlvo);
-
-console.log(`Removido novo IMEI ${imeiAlvo}?`, antesNovos !== estoqueNovos.length || antesUsados !== estoqueUsados.length);
-console.log(`Removido nova linha ${linhaAlvo}?`, antesChips !== chips.length);
+    const imeiAlvo = novoImei.trim();
+    estoqueNovos = estoqueNovos.filter(eq => eq.imei.trim() !== imeiAlvo);
+    estoqueUsados = estoqueUsados.filter(eq => eq.imei.trim() !== imeiAlvo);
   }
 
-  // Atualiza o cliente no array
+  // Se trocou de linha, remover a nova linha dos chips disponíveis
+  if (linhaAlterada) {
+    const linhaAlvo = novaLinha.trim();
+    chips = chips.filter(chip => chip.linha.trim() !== linhaAlvo);
+  }
+
+  // Atualiza o cliente
   clientes[index] = {
     ...clienteAntigo,
     plano: novoPlano,
     veiculo: novoVeiculo,
-    modelo: novoModelo,
-    imei: novoImei,
-    linha: novaLinha
+    modelo: equipamentoAlterado ? novoModelo : clienteAntigo.modelo,
+    imei: equipamentoAlterado ? novoImei : clienteAntigo.imei,
+    linha: linhaAlterada ? novaLinha : clienteAntigo.linha
   };
 
-  // Salva tudo no localStorage
+  // Salva os dados atualizados
   localStorage.setItem("clientesAtivos", JSON.stringify(clientes));
   localStorage.setItem("estoqueNovos", JSON.stringify(estoqueNovos));
   localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
   localStorage.setItem("estoqueChips", JSON.stringify(chips));
 
-  alert("Cliente atualizado com sucesso!");
+  // Exibe popup de sucesso
+  const popup = document.getElementById("popup-confirmacao");
+  const popupMessage = document.getElementById("popup-message");
+  popupMessage.textContent = "Cliente atualizado com sucesso!";
+  popup.classList.remove("hidden");
 
-  // Fecha o modal e limpa o formulário
-  modalEdicao.classList.add("hidden");
-  document.getElementById("form-edicao-element").reset();
+  const popupOk = document.getElementById("popup-ok");
+  popupOk.onclick = () => {
+    popup.classList.add("hidden");
+    modalEdicao.classList.add("hidden");
+    document.getElementById("form-edicao-element").reset();
 
-  // Atualiza a tabela na tela
-  const atualizarTabela = window.atualizarTabelaClientesAtivos || window.preencherTabelaClientesAtivos;
-  if (atualizarTabela) atualizarTabela(clientes);
+    const atualizarTabela = window.atualizarTabelaClientesAtivos || window.preencherTabelaClientesAtivos;
+    if (atualizarTabela) atualizarTabela(clientes);
+  };
 });

@@ -44,32 +44,19 @@ header {
   
   /* Filtro e Importação */
   .filter-import {
-    text-align: center;
+text-align: center;
     margin: 2rem 0;
-  }
-  
-  .filter-input {
+}
+
+.filter-input {
     padding: 0.8rem;
     font-size: 1rem;
     width: 200px;
     margin-right: 1rem;
     border-radius: 8px;
     border: 1px solid #ddd;
-  }
+}
   
-  .import-btn {
-    background-color: #333; /* Cor preta */
-    color: white;
-    padding: 0.8rem 1.5rem; /* Ajustado para menor */
-    margin-left: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  
-  .import-btn:hover {
-    background-color: #e67e22; /* Laranja padrão */
-  }
   
   table {
     width: 100%;
@@ -107,4 +94,9 @@ header {
       padding: 0.8rem;
     }
   }
-  
+  /* Título da seção */
+h2 {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #333;
+}

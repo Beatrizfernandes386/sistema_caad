@@ -70,4 +70,9 @@ header {
     background-color: #e67e22;
     color: white;
   }
-  
+  /* Título da seção */
+h2 {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #333;
+}

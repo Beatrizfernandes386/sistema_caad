@@ -43,11 +43,13 @@ if (filtroInput) {
 }
 
 // Função para importar dados JSON
-if (importarBtn && importarInput) {
-  importarBtn.addEventListener("click", () => importarInput.click());
+document.getElementById("importar-btn").addEventListener("click", () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
 
-  importarInput.addEventListener("change", (e) => {
-    const file = e.target.files[0];
+  input.addEventListener("change", (event) => {
+    const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
@@ -67,10 +69,13 @@ if (importarBtn && importarInput) {
         alert("Erro ao importar o arquivo. Verifique se é um JSON válido.");
       }
     };
+
     reader.readAsText(file);
-    e.target.value = ""; // Limpa o input após importar
   });
-}
+
+  input.click();
+});
+
 
 // Carrega os clientes cancelados ao iniciar
 carregarClientesCancelados();

@@ -107,15 +107,20 @@ tr:hover {
 }
 
 /* Filtro de pesquisa */
-#filtro-sinistros {
-  display: block;
-  margin: 0 auto 1.5rem auto;
-  padding: 8px 12px;
-  width: 300px;
-  max-width: 90%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.filter-import {
+text-align: center;
+    margin: 2rem 0;
 }
+
+.filter-input {
+    padding: 0.8rem;
+    font-size: 1rem;
+    width: 200px;
+    margin-right: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
 
 /* Upload */
 #upload-json {

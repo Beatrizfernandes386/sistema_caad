@@ -24,14 +24,14 @@
   </nav>
 
   <!-- Campo de pesquisa -->
-  <div class="filtro-pesquisa">
-    <input type="text" id="filtro-sinistros" placeholder="Pesquisar sinistros...">
-  </div>
+ <section class="filter-import">
+    <input type="text" id="filtro-input" class="filter-input" placeholder="Buscar por nome..." />
+    <button class="import-btn" id="importar-btn">Importar Dados</button>
+  </section>
 
   <!-- Botões de Ação -->
   <div class="action-buttons">
     <button id="abrir-modal" class="action-btn">Novo Sinistro</button>
-    <input type="file" id="importar-sinistros" accept=".json" />
   </div>
 
   <!-- Modal de Cadastro -->
@@ -122,5 +122,9 @@
   </div>
 
   <script src="script-sinistros.js"></script>
+ <script src="../assets/js/seguranca.js"></script>
+<script>
+  verificarAcesso();
+</script>
 </body>
 </html>

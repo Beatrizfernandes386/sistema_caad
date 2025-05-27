@@ -13,9 +13,9 @@ function getDashboardData() {
 
     distribuicaoPlanos: planos, // Agora usa os dados de planos do localStorage
     evolucaoMensal: {
-      meses: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      meses: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
       instalacoes: [5, 8, 12, 15, 10, 20], 
-      desinstalacoes: [1, 3, 2, 4, 2, 5]  // Adicionando desinstalações
+      desinstalacoes: []  // Adicionando desinstalações
     },
     sinistrosAnuais: {
       anos: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],

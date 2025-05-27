@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Clientes Cancelados - CAAD</title>
-  <link rel="stylesheet" href="../assets/css/clientes-cancelados.css"> <!-- Verifique se esse caminho está correto -->
+  <link rel="stylesheet" href="../assets/css/clientes-cancelados.css"> 
 </head>
 <body>
 
@@ -22,15 +22,16 @@
     <a href="../sinistros/sinistros.html" class="nav-btn">Sinistros</a>
   </nav>  
 
-
+  <!-- Filtro de pesquisa e Importação -->
   <section class="filter-import">
-    <input type="text" id="filtro-cancelados" class="filter-input" placeholder="Buscar por nome ou motivo...">
+    <input type="text" id="filtro-input" class="filter-input" placeholder="Buscar por nome..." />
+    <button class="import-btn" id="importar-btn">Importar Dados</button>
   </section>
-
-  <button id="importar-cancelados">Importar JSON</button>
-  <input type="file" id="importar-input" accept=".json" style="display: none;">  
+ 
+  <input type="file" id="importar-json" accept=".json" style="display: none;" />
 
   <section id="clientes-cancelados-tabela">
+    <h2>Histórico de Cancelamentos</h2>
     <table>
       <thead>
         <tr>
@@ -48,5 +49,10 @@
 
   <!-- Importa o script JS -->
   <script src="script-clientes-cancelados.js"></script>
+
+ <script src="../assets/js/seguranca.js"></script>
+<script>
+  verificarAcesso();
+</script>
 </body>
 </html>
