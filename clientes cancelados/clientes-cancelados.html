@@ -48,11 +48,12 @@
   </section>
 
   <!-- Importa o script JS -->
-  <script src="script-clientes-cancelados.js"></script>
 
- <script src="../assets/js/seguranca.js"></script>
-<script>
-  verificarAcesso();
-</script>
+   <script src="../assets/css/js/seguranca.js"></script>
+  <script>
+    verificarAcesso(); // true se quiser limitar só a admins
+    aplicarPermissoes(); // restringe edição para visualizadores
+  </script>
+  <script src="script-clientes-cancelados.js"></script>
 </body>
 </html>

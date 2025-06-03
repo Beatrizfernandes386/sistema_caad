@@ -75,7 +75,7 @@ function preencherIMEICadastro() {
 // Chips disponíveis (ativos)
 function preencherChipsDisponiveis() {
   const chips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
-  const chipsAtivos = chips.filter(chip => chip.status === "ATIVO");
+  const chipsAtivos = chips.filter(chip => chip.status === "DISPONÍVEL");
 
   linhaCadastro.innerHTML = `<option value="">Linha</option>`;
 

@@ -31,7 +31,7 @@
 
   <!-- Botões de Ação -->
   <div class="action-buttons">
-    <button id="abrir-modal" class="action-btn">Novo Sinistro</button>
+   <button id="cadastrar-btn" class="action-btn">Novo Sinistro</button>
   </div>
 
   <!-- Modal de Cadastro -->
@@ -121,10 +121,11 @@
     </div>
   </div>
 
+   <script src="../assets/css/js/seguranca.js"></script>
+  <script>
+    verificarAcesso(); // true se quiser limitar só a admins
+    aplicarPermissoes(); // restringe edição para visualizadores
+  </script>
   <script src="script-sinistros.js"></script>
- <script src="../assets/js/seguranca.js"></script>
-<script>
-  verificarAcesso();
-</script>
 </body>
 </html>

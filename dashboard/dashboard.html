@@ -8,7 +8,11 @@
 </head>
 <body>
 
-<header>
+<header class="topo-sistema">
+  <div class="usuario-area">
+    <span id="tipo-usuario">admin</span>
+    <button onclick="logout()" class="logout-btn">Sair</button>
+  </div>
   <h1>Caad Rastreamento</h1>
 </header>
 
@@ -23,22 +27,27 @@
   <a href="../log/log.html" class="nav-btn">Controle de Log</a>
 </nav>
 
-<label for="filtro-mes">Filtrar por Mês:</label>
-<select id="filtro-mes">
-  <option value="">Selecione o mês</option>
-  <option value="01">Janeiro</option>
-  <option value="02">Fevereiro</option>
-  <option value="03">Março</option>
-  <option value="04">Abril</option>
-  <option value="05">Maio</option>
-  <option value="06">Junho</option>
-  <option value="07">Julho</option>
-  <option value="08">Agosto</option>
-  <option value="09">Setembro</option>
-  <option value="10">Outubro</option>
-  <option value="11">Novembro</option>
-  <option value="12">Dezembro</option>
-</select>
+<div style="margin-bottom: 20px;">
+  <label for="filtro-mes">Mês:</label>
+  <select id="filtro-mes">
+    <option value="0">Jan</option>
+    <option value="1">Fev</option>
+    <option value="2">Mar</option>
+    <option value="3">Abr</option>
+    <option value="4">Mai</option>
+    <option value="5">Jun</option>
+    <option value="6">Jul</option>
+    <option value="7">Ago</option>
+    <option value="8">Set</option>
+    <option value="9">Out</option>
+    <option value="10">Nov</option>
+    <option value="11">Dez</option>
+  </select>
+
+  <label for="filtro-ano">Ano:</label>
+  <select id="filtro-ano"></select>
+</div>
+
 
 <div class="dashboard">
   <div class="indicators-grid">
@@ -69,24 +78,25 @@
   </div>
 </div>
 
-
-  <div class="charts-grid">
-    <div class="chart-medium">
-      <canvas id="chart-distribuicao"></canvas>
-    </div>
-    <div class="chart-medium">
-      <canvas id="chart-instalacoes"></canvas>
-    </div>
-    <div class="chart-medium">
-      <canvas id="chart-sinistros"></canvas>
-    </div>
+<div class="charts-grid">
+  <div class="chart-medium">
+    <canvas id="chart-distribuicao"></canvas>
   </div>
-  
+  <div class="chart-medium">
+    <canvas id="chart-instalacoes"></canvas>
+  </div>
+  <div class="chart-medium">
+    <canvas id="chart-sinistros"></canvas>
+  </div>
+</div>
 
-<script src="script-dashboard.js"></script>
-<script src="../assets/js/seguranca.js"></script>
+<!-- Corrigido o caminho e a estrutura do script -->
+<script src="../assets/css/js/seguranca.js"></script>
 <script>
-  verificarAcesso();
+  verificarLogin();        // Redireciona para login se não estiver logado
+  aplicarPermissoes();     // Restringe ações para visualizadores
+  mostrarUsuarioLogado();  // Atualiza o span com o tipo de usuário
 </script>
+<script src="script-dashboard.js"></script>
 </body>
 </html>

@@ -52,7 +52,7 @@ body {
 }
 
 .login-container input::placeholder {
-    color: #aaa;
+    color: #f6eeee;
 }
 
 .login-container button {

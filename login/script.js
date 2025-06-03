@@ -1,32 +1,37 @@
 document.getElementById('loginForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
-  const tipoUsuario = document.getElementById('tipoUsuario').value;
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
 
-  const loginCorreto = "admin@caad.com";
-  const senhaCorreta = "1234";
+  // Lista de usuários válidos
+  const usuarios = [
+    { email: "admin@caad.com", senha: "caad110207", tipo: "admin" },
+    { email: "visual@caad.com", senha: "caad110207", tipo: "visualizador" }
+  ];
 
-  const sucesso = email === loginCorreto && senha === senhaCorreta;
+  const usuarioEncontrado = usuarios.find(u => u.email === email && u.senha === senha);
 
+  // Registrar log
   registrarLog({
     acao: "Login",
     usuario: email,
-    tipo: tipoUsuario || "não informado",
-    status: sucesso ? "Sucesso" : "Falha",
+    tipo: usuarioEncontrado ? usuarioEncontrado.tipo : "desconhecido",
+    status: usuarioEncontrado ? "Sucesso" : "Falha",
     dataHora: new Date().toLocaleString()
   });
 
-  if (sucesso && tipoUsuario) {
-    // Armazena a sessão do usuário
-    localStorage.setItem("usuarioLogado", "true");
-    localStorage.setItem("tipoUsuario", tipoUsuario);
+  if (usuarioEncontrado) {
+    // Salvar sessão
+    localStorage.setItem("usuarioLogado", JSON.stringify({
+      email: usuarioEncontrado.email,
+      tipo: usuarioEncontrado.tipo
+    }));
 
     // Redireciona para o dashboard
     window.location.href = "dashboard/dashboard.html";
   } else {
-    alert("E-mail, senha ou tipo de usuário inválidos.");
+    alert("E-mail ou senha incorretos.");
   }
 });
 
@@ -35,4 +40,11 @@ function registrarLog(entry) {
   const logs = JSON.parse(localStorage.getItem("logsSistema")) || [];
   logs.push(entry);
   localStorage.setItem("logsSistema", JSON.stringify(logs));
+}
+
+function verificarLogin() {
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  if (!usuario) {
+    window.location.href = "../login.html";
+  }
 }

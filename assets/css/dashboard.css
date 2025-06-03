@@ -31,7 +31,7 @@ header {
   border-radius: 5px;
   background-color: transparent;
   border: 1px solid white;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
 }
 
 .nav-btn:hover,
@@ -66,7 +66,7 @@ header {
 
 .indicator-card h3 {
   font-size: 16px;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: #555;
 }
 
@@ -76,6 +76,13 @@ header {
   color: #e67e22;
 }
 
+.indicator-card i {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #e67e22;
+}
+
+/* Gráficos */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -87,4 +94,91 @@ header {
   padding: 1.5rem;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Responsividade extra */
+@media (max-width: 500px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Topo do sistema */
+.topo-sistema {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  background-color: #e67e22;
+  padding: 45px;
+  color: white;
+  text-align: center;
+}
+
+.topo-sistema h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Área do usuário */
+.usuario-area {
+  position: absolute;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #0b0b0b;
+  padding: 5px 10px;
+  border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+  .usuario-area {
+    position: static;
+    margin-top: 10px;
+    justify-content: center;
+  }
+}
+
+#tipo-usuario {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+/* Botão de logout */
+.logout-btn {
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #e67e22;
+  color: white;
+}
+
+/* Estilo para tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #e67e22;
+  color: white;
 }

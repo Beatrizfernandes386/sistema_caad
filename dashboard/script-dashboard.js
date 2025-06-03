@@ -1,221 +1,210 @@
-// Função para buscar dados do localStorage
-function getDashboardData() {
-  const planos = JSON.parse(localStorage.getItem('planos')) || {}; // Pega os planos do localStorage
+document.addEventListener("DOMContentLoaded", () => {
+  preencherAnoAtual();
+  atualizarIndicadores();
+  atualizarGraficos();
 
-  return {
-    clientesAtivos: JSON.parse(localStorage.getItem('clientesAtivos'))?.length || 0, 
-    instalacoesMes: 15, 
-    cancelamentosMes: 5, 
-    equipamentosPerdidosMes: JSON.parse(localStorage.getItem('equipamentosPerdidos'))?.length || 0,
-    equipamentosEstoque: JSON.parse(localStorage.getItem('estoqueUsados'))?.length + JSON.parse(localStorage.getItem('estoqueNovos'))?.length || 0,
-    linhasEstoque: JSON.parse(localStorage.getItem('estoqueChips'))?.length || 0,
-    resumoPlanos: planos,
+  // Corrige valor do mês (0-11) para o seletor
+  document.getElementById("filtro-mes").value = new Date().getMonth();
+  document.getElementById("filtro-ano").addEventListener("change", atualizarGraficos);
+  document.getElementById("filtro-mes").addEventListener("change", atualizarGraficos);
+});
 
-    distribuicaoPlanos: planos, // Agora usa os dados de planos do localStorage
-    evolucaoMensal: {
-      meses: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-      instalacoes: [5, 8, 12, 15, 10, 20], 
-      desinstalacoes: []  // Adicionando desinstalações
+const graficos = {}; // Guarda os gráficos para destruição segura antes de recriar
+
+function preencherAnoAtual() {
+  const anos = new Set();
+  const clientesAtivos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
+  const clientesCancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
+  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+
+  [...clientesAtivos, ...clientesCancelados, ...sinistros].forEach(item => {
+    const data = new Date(item.data || item.dataCancelamento || item.dataSinistro);
+    if (!isNaN(data)) anos.add(data.getFullYear());
+  });
+
+  const filtroAno = document.getElementById("filtro-ano");
+  filtroAno.innerHTML = "";
+  const anosOrdenados = Array.from(anos).sort((a, b) => b - a);
+
+  anosOrdenados.forEach(ano => {
+    const option = document.createElement("option");
+    option.value = ano;
+    option.textContent = ano;
+    filtroAno.appendChild(option);
+  });
+
+  // Seleciona o ano atual, se existir
+  const anoAtual = new Date().getFullYear();
+  if (anos.has(anoAtual)) {
+    filtroAno.value = anoAtual;
+  } else if (anosOrdenados.length > 0) {
+    filtroAno.value = anosOrdenados[0];
+  }
+}
+
+function atualizarIndicadores() {
+  const ativos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
+  const cancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
+  const equipamentosPerdidos = JSON.parse(localStorage.getItem("equipamentosPerdidos") || "[]");
+  const estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos") || "[]");
+  const estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados") || "[]");
+  const chips = JSON.parse(localStorage.getItem("estoqueChips") || "[]");
+  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+
+  const mesAtual = new Date().getMonth();
+  const anoAtual = new Date().getFullYear();
+
+  const instalacoesNoMes = ativos.filter(c => {
+    const data = new Date(c.data);
+    return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
+  }).length;
+
+  const cancelamentosNoMes = cancelados.filter(c => {
+    const data = new Date(c.dataCancelamento);
+    return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
+  }).length;
+
+  const sinistrosAno = sinistros.filter(s => {
+    const data = new Date(s.dataSinistro);
+    return !isNaN(data) && data.getFullYear() === anoAtual;
+  }).length;
+
+  const linhasDisponiveis = chips.filter(c => c.status === "disponível").length;
+  const equipamentosDisponiveis = [...estoqueNovos, ...estoqueUsados].filter(e => e.status === "novo" || e.status === "usado").length;
+
+  document.getElementById("clientes-ativos").textContent = ativos.length;
+  document.getElementById("instalacoes-mes").textContent = instalacoesNoMes;
+  document.getElementById("cancelamentos-mes").textContent = cancelamentosNoMes;
+  document.getElementById("equipamentos-perdidos").textContent = equipamentosPerdidos.length;
+  document.getElementById("equipamentos-estoque").textContent = equipamentosDisponiveis;
+  document.getElementById("linhas-estoque").textContent = linhasDisponiveis;
+
+  const indicadorSinistrosAno = document.getElementById("sinistros-ano");
+  if (indicadorSinistrosAno) {
+    indicadorSinistrosAno.textContent = sinistrosAno;
+  }
+}
+
+function atualizarGraficos() {
+  const mes = parseInt(document.getElementById("filtro-mes").value);
+  const ano = parseInt(document.getElementById("filtro-ano").value);
+
+  const ativos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
+  const cancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
+  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+
+  // --- Gráfico 1: Distribuição de planos ---
+  const planos = { BASIC: 0, ELITE: 0, MASTER: 0 };
+  ativos.forEach(cliente => {
+    if (cliente.plano && planos[cliente.plano] !== undefined) {
+      planos[cliente.plano]++;
+    }
+  });
+
+  const ctxDistribuicao = document.getElementById("chart-distribuicao").getContext("2d");
+  if (graficos.distribuicao) graficos.distribuicao.destroy();
+  graficos.distribuicao = new Chart(ctxDistribuicao, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(planos),
+      datasets: [{
+        data: Object.values(planos),
+        backgroundColor: ['#e67e22', '#91e622', '#2922e6'],
+      }]
     },
-    sinistrosAnuais: {
-      anos: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
-      quantidade: [10, 15, 12, 8] 
-    }
-  };
-}
-
-document.getElementById('filtro-mes').addEventListener('change', function() {
-  const mesSelecionado = this.value;
-
-  // Apenas atualiza os cards se um mês válido for selecionado
-  if (mesSelecionado) {
-    atualizarCardsComFiltro(mesSelecionado);
-  }
-});
-
-function atualizarCardsComFiltro(mes) {
-  const dados = obterDadosPorMes(mes);
-  console.log('Atualizando cards com dados para o mês:', mes, dados); // Log para depuração
-  atualizarCards(dados);
-}
-
-function obterDadosPorMes(mes) {
-  // Simulação de dados para cada mês
-  const dadosMeses = {
-    '01': { clientesAtivos: 970, instalacoesMes: 15, cancelamentosMes: 5, equipamentosPerdidos: 3, equipamentosEstoque: 1, linhasEstoque: 1 },
-    '02': { clientesAtivos: 950, instalacoesMes: 10, cancelamentosMes: 3, equipamentosPerdidos: 2, equipamentosEstoque: 2, linhasEstoque: 2 },
-    // Adicionar os dados de outros meses aqui
-    '03': { clientesAtivos: 920, instalacoesMes: 12, cancelamentosMes: 4, equipamentosPerdidos: 5, equipamentosEstoque: 0, linhasEstoque: 3 }
-  };
-  
-  return dadosMeses[mes] || { clientesAtivos: 0, instalacoesMes: 0, cancelamentosMes: 0, equipamentosPerdidos: 0, equipamentosEstoque: 0, linhasEstoque: 0 };
-}
-
-function atualizarCards(dados) {
-  // Atualizando os cards
-  const clientesAtivos = document.getElementById('clientes-ativos');
-  const instalacoesMes = document.getElementById('instalacoes-mes');
-  const cancelamentosMes = document.getElementById('cancelamentos-mes');
-  const equipamentosPerdidos = document.getElementById('equipamentos-perdidos');
-  const equipamentosEstoque = document.getElementById('equipamentos-estoque');
-  const linhasEstoque = document.getElementById('linhas-estoque');
-
-  // Atualizando os valores
-  if (clientesAtivos) {
-    clientesAtivos.textContent = dados.clientesAtivos;
-  }
-  if (instalacoesMes) {
-    instalacoesMes.textContent = dados.instalacoesMes;
-  }
-  if (cancelamentosMes) {
-    cancelamentosMes.textContent = dados.cancelamentosMes;
-  }
-  if (equipamentosPerdidos) {
-    equipamentosPerdidos.textContent = dados.equipamentosPerdidos;
-  }
-  if (equipamentosEstoque) {
-    equipamentosEstoque.textContent = dados.equipamentosEstoque;
-  }
-  if (linhasEstoque) {
-    linhasEstoque.textContent = dados.linhasEstoque;
-  }
-}
-
-const distribuicaoCtx = document.getElementById('chart-distribuicao').getContext('2d');
-const instalacoesCtx = document.getElementById('chart-instalacoes').getContext('2d');
-const sinistrosCtx = document.getElementById('chart-sinistros').getContext('2d');
-
-// Atualize a referência para a variável distribuicaoPlanos
-const distribuicaoPlanos = getDashboardData().distribuicaoPlanos;
-const evolucaoMensal = getDashboardData().evolucaoMensal;
-const sinistrosAnuais = getDashboardData().sinistrosAnuais;
-
-// Gráfico distribuição de planos
-new Chart(distribuicaoCtx, {
-  type: 'pie',
-  data: {
-    labels: Object.keys(distribuicaoPlanos),
-    datasets: [{
-      data: Object.values(distribuicaoPlanos),
-      backgroundColor: ['#e67e22', '#34495e', '#7f8c8d']
-    }]
-  },
-  options: {
-    plugins: {
-      title: {
-        display: true,
-        text: 'Distribuição de Planos'
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Distribuição de Planos'
+        }
       }
     }
-  }
-});
+  });
 
-// Gráfico evolução mensal de instalações e desinstalações
-new Chart(instalacoesCtx, {
-  type: 'line',
-  data: {
-    labels: evolucaoMensal.meses,
-    datasets: [
-      {
-        label: 'Instalações',
-        data: evolucaoMensal.instalacoes,
-        borderColor: '#e67e22',
-        backgroundColor: 'rgba(230,126,34,0.2)',
-        tension: 0.3,
-        fill: true,
-      },
-      {
-        label: 'Desinstalações',
-        data: evolucaoMensal.desinstalacoes,
-        borderColor: '#34495e',
-        backgroundColor: 'rgba(52,152,219,0.2)',
-        tension: 0.3,
-        fill: true,
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    plugins: { 
-      legend: { display: true },
-      title: {
-        display: true,
-        text: 'Evolução de Instalações e Desinstalações Mensais'
-      }
+  // --- Gráfico 2: Instalações e Cancelamentos por mês ---
+  const meses = Array(12).fill(0);
+  const cancelamentos = Array(12).fill(0);
+
+  ativos.forEach(c => {
+    const data = new Date(c.data);
+    if (!isNaN(data) && data.getFullYear() === ano) {
+      meses[data.getMonth()]++;
+    }
+  });
+
+  cancelados.forEach(c => {
+    const data = new Date(c.dataCancelamento);
+    if (!isNaN(data) && data.getFullYear() === ano) {
+      cancelamentos[data.getMonth()]++;
+    }
+  });
+
+  const ctxInstalacoes = document.getElementById("chart-instalacoes").getContext("2d");
+  if (graficos.instalacoes) graficos.instalacoes.destroy();
+  graficos.instalacoes = new Chart(ctxInstalacoes, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      datasets: [
+        {
+          label: 'Instalações',
+          backgroundColor: '#e67e22',
+          data: meses
+        },
+        {
+          label: 'Cancelamentos',
+          backgroundColor: '#333',
+          data: cancelamentos
+        }
+      ]
     },
-    scales: {
-      y: { beginAtZero: true }
-    }
-  }
-});
-
-// Gráfico sinistros anuais
-new Chart(sinistrosCtx, {
-  type: 'bar',
-  data: {
-    labels: sinistrosAnuais.anos,
-    datasets: [{
-      label: 'Sinistros',
-      data: sinistrosAnuais.quantidade,
-      backgroundColor: '#34495e',
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { 
-      legend: { display: false },
-      title: {
-        display: true,
-        text: 'Sinistros Anuais'
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Instalações e Cancelamentos'
+        }
       }
-    },
-    scales: {
-      y: { beginAtZero: true }
     }
-  }
-});
+  });
 
-// Inicializar dashboard
-function inicializarDashboard() {
-  const dados = getDashboardData();
-  atualizarCards(dados);
-  criarGraficoPlanos(dados.distribuicaoPlanos);
-  criarGraficoEvolucao(dados.evolucaoMensal);
-  criarGraficoSinistros(dados.sinistrosAnuais);
-}
+  // --- Gráfico 3: Sinistros por ano ---
+  const anos = {};
+  sinistros.forEach(s => {
+    const data = new Date(s.dataSinistro);
+    if (!isNaN(data)) {
+      const y = data.getFullYear();
+      anos[y] = (anos[y] || 0) + 1;
+    }
+  });
 
-const filtroMes = document.getElementById("filtro-mes");
+  const anosOrdenados = Object.keys(anos).sort((a, b) => a - b);
+  const dadosSinistros = anosOrdenados.map(ano => anos[ano]);
 
-filtroMes.addEventListener("change", () => {
-  const mesSelecionado = filtroMes.value;
-  
-  // Chame a função de atualização dos cards
-  atualizarCardsComFiltro(mesSelecionado);
-});
-
-function atualizarCardsComFiltro(mes) {
-  const dados = getDashboardData();
-
-  // Aqui você aplica o filtro de mês apenas nos dados dos cards
-  if (mes) {
-    const clientesFiltrados = filtrarDadosPorMes(mes);
-    dados.clientesAtivos = clientesFiltrados.length;
-    dados.instalacoesMes = clientesFiltrados.filter(cliente => new Date(cliente.dataCadastro).getMonth() + 1 === parseInt(mes)).length;
-    dados.cancelamentosMes = 5;  // Exemplo, coloque a lógica aqui
-    dados.equipamentosPerdidosMes = 5;  // Exemplo, coloque a lógica aqui
-  }
-
-  // Atualize apenas os cards
-  atualizarCards(dados);
-}
-
-function filtrarDadosPorMes(mes) {
-  const clientes = JSON.parse(localStorage.getItem("clientesAtivos")) || [];
-  
-  if (!mes) return clientes;
-  
-  return clientes.filter(cliente => {
-    const mesCadastro = new Date(cliente.dataCadastro).getMonth() + 1; // Mês começa do 0
-    return mesCadastro === parseInt(mes);
+  const ctxSinistros = document.getElementById("chart-sinistros").getContext("2d");
+  if (graficos.sinistros) graficos.sinistros.destroy();
+  graficos.sinistros = new Chart(ctxSinistros, {
+    type: 'line',
+    data: {
+      labels: anosOrdenados,
+      datasets: [{
+        label: 'Sinistros',
+        borderColor: '#2196f3',
+        fill: false,
+        data: dadosSinistros
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Sinistros por Ano'
+        }
+      }
+    }
   });
 }

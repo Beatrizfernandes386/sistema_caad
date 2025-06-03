@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Logs do Sistema</title>
   <link rel="stylesheet" href="../assets/css/log.css">
 </head>
@@ -11,8 +11,7 @@
     <h1>Logs do Sistema</h1>
   </header>
 
-
-<!-- Navegação -->
+  <!-- Navegação -->
   <nav class="navigation">
     <a href="../dashboard/dashboard.html" class="nav-btn">Dashboard</a>
     <a href="../clientes ativos/clientes-ativos.html" class="nav-btn">Clientes Ativos</a>
@@ -23,14 +22,13 @@
     <a href="../sinistros/sinistros.html" class="nav-btn">Sinistros</a>
   </nav>
 
+  <h2>Histórico</h2>
   <table id="tabela-logs">
-    <h2>Histórico</h2>
-    <table>
     <thead>
       <tr>
         <th>Ação</th>
         <th>Data e Hora</th>
-        <th>Detalhes</th>
+        <th>Descrição</th>
         <th>Usuário</th>
       </tr>
     </thead>
@@ -39,6 +37,11 @@
     </tbody>
   </table>
 
-  <script src="script-logs.js"></script>
+  <script src="../assets/css/js/seguranca.js"></script>
+  <script>
+    verificarAcesso();
+    aplicarPermissoes();
+  </script>
+  <script src="script-log.js"></script>
 </body>
 </html>

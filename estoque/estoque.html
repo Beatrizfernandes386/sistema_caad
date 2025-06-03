@@ -22,9 +22,10 @@
   </nav>  
 
   <div class="action-buttons">
-    <button class="action-btn" onclick="toggleForm('form-equipamento')">Cadastrar Equipamento</button>
-    <button class="action-btn" onclick="toggleForm('form-chip')">Cadastrar Chip</button>
-    <button class="action-btn" onclick="toggleForm('form-excluir')">Excluir</button>
+   <button id="cadastrar-btn" class="action-btn" onclick="toggleForm('form-equipamento')">Cadastrar Equipamento</button>
+<button id="editar-btn" class="action-btn" onclick="toggleForm('form-chip')">Cadastrar Chip</button>
+<button id="excluir-btn" class="action-btn" onclick="toggleForm('form-excluir')">Excluir</button>
+
   </div>
 
   <div id="form-equipamento" class="form-container">
@@ -48,8 +49,7 @@
       <input type="text" id="linha-chip" placeholder="Linha" required />
       <select id="status-chip" required>
         <option value="">Status</option>
-        <option value="ATIVO">ATIVO</option>
-        <option value="BLOQUEADO">BLOQUEADO</option>
+        <option value="ATIVO">DISPONÍVEL</option>
       </select>
       <button type="submit">Cadastrar</button>
     </form>
@@ -77,7 +77,7 @@
       <label for="status-chip-excluir">Status do Chip:</label>
       <select id="status-chip-excluir" required>
         <option value="">Status do Chip</option>
-        <option value="ATIVO">ATIVO</option>
+        <option value="ATIVO">DISPONÍVEL</option>
         <option value="CANCELADO">CANCELADO</option>
       </select>
     
@@ -132,10 +132,11 @@
       form.style.display = form.style.display === 'block' ? 'none' : 'block';
     }
   </script>
+  <script src="../assets/css/js/seguranca.js"></script>
+  <script>
+    verificarAcesso(); // true se quiser limitar só a admins
+    aplicarPermissoes(); // restringe edição para visualizadores
+  </script>
   <script src="script-estoque.js"></script>
-  <script src="../assets/js/seguranca.js"></script>
-<script>
-  verificarAcesso();
-</script>
 </body>
 </html>

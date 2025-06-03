@@ -1,19 +1,20 @@
-window.addEventListener("DOMContentLoaded", () => {
-  const tabela = document.querySelector("#tabela-logs tbody");
+document.addEventListener("DOMContentLoaded", function () {
+  const tabelaLogs = document.querySelector("#tabela-logs tbody");
   const logs = JSON.parse(localStorage.getItem("logsSistema")) || [];
 
-  logs.reverse().forEach(log => {
+  if (logs.length === 0) {
+    tabelaLogs.innerHTML = `<tr><td colspan="4">Nenhum log encontrado.</td></tr>`;
+    return;
+  }
+
+  logs.forEach(log => {
     const tr = document.createElement("tr");
-
-    const data = new Date(log.timestamp);
-    const dataFormatada = data.toLocaleDateString();
-    const horaFormatada = data.toLocaleTimeString();
-
     tr.innerHTML = `
-      <td>${dataFormatada}</td>
-      <td>${horaFormatada}</td>
-      <td>${log.acao}</td>
+      <td>${log.acao || '-'}</td>
+       <td>${log.dataHora}</td>
+      <td>${log.detalhes || '-'} (${log.tipo || "-"})</td>
+      <td>${log.usuario || '-'}</td>
     `;
-    tabela.appendChild(tr);
+    tabelaLogs.appendChild(tr);
   });
 });

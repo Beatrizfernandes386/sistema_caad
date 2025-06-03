@@ -135,8 +135,8 @@ document.getElementById("formExcluirEquipamento")?.addEventListener("submit", (e
   localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
 
   // Se ATIVO, devolve o chip ao estoque
-  if (statusChip === "ATIVO") {
-    estoqueChips.push({ linha, status: "ATIVO" });
+  if (statusChip === "DISPONÍVEL") {
+    estoqueChips.push({ linha, status: "DISPONÍVEL" });
     localStorage.setItem("estoqueChips", JSON.stringify(estoqueChips));
   }
   
