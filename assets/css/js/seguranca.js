@@ -10,7 +10,7 @@ function verificarAcesso(requerAdmin = false) {
   // Se a página requer admin e o usuário não é admin, redireciona
   if (requerAdmin && usuarioLogado.tipo !== 'admin') {
     alert('Você não tem permissão para acessar essa página.');
-    window.location.href = '../dashboard/dashboard.html';
+    window.location.href = '../index.html';
   }
 }
 
@@ -48,7 +48,7 @@ function verificarAcesso() {
   const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
   if (!usuario) {
     alert("Acesso não autorizado!");
-    window.location.href = "../login/login.html";
+    window.location.href = "../index.html";
   }
 }
 
