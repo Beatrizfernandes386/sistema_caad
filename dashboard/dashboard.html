@@ -72,8 +72,8 @@
       <span id="equipamentos-estoque" class="big-number">1</span>
     </div>
     <div class="indicator-card">
-      <h3>Linhas no Estoque</h3>
-      <span id="linhas-estoque" class="big-number">1</span>
+      <h3>Chips no Estoque</h3>
+      <span id="estoqueChips" class="big-number">1</span>
     </div>
   </div>
 </div>
@@ -92,8 +92,9 @@
 
 <script src="../seguranca/seguranca.js"></script>
 <script>
-  verificarLogin();
-  aplicarPermissoes();
+verificarLogin();         // Garante que o usuário está logado
+aplicarPermissoes();      // Aplica as restrições para visualizadores
+mostrarUsuarioLogado();   // Mostra tipo do usuário no topo
 </script>
 <script src="script-dashboard.js"></script>
 </body>

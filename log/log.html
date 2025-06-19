@@ -39,8 +39,10 @@
 
 <script src="../seguranca/seguranca.js"></script>
 <script>
-  verificarLogin();
-  aplicarPermissoes();
+verificarLogin();         // Garante que o usuário está logado
+aplicarPermissoes();      // Aplica as restrições para visualizadores
+mostrarUsuarioLogado();   // Mostra tipo do usuário no topo
+verificarAcesso(true);
 </script>
   <script src="script-log.js"></script>
 </body>

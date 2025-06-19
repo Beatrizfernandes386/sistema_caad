@@ -69,15 +69,15 @@ function atualizarIndicadores() {
     return !isNaN(data) && data.getFullYear() === anoAtual;
   }).length;
 
-  const linhasDisponiveis = chips.filter(c => c.status === "disponível").length;
-  const equipamentosDisponiveis = [...estoqueNovos, ...estoqueUsados].filter(e => e.status === "novo" || e.status === "usado").length;
+  const estoqueChips = chips.filter(c => c.status === "DISPONÍVEL").length;
+  const equipamentosDisponiveis = [...estoqueNovos, ...estoqueUsados].length;
 
   document.getElementById("clientes-ativos").textContent = ativos.length;
   document.getElementById("instalacoes-mes").textContent = instalacoesNoMes;
   document.getElementById("cancelamentos-mes").textContent = cancelamentosNoMes;
   document.getElementById("equipamentos-perdidos").textContent = equipamentosPerdidos.length;
   document.getElementById("equipamentos-estoque").textContent = equipamentosDisponiveis;
-  document.getElementById("linhas-estoque").textContent = linhasDisponiveis;
+  document.getElementById("estoqueChips").textContent = estoqueChips;
 
   const indicadorSinistrosAno = document.getElementById("sinistros-ano");
   if (indicadorSinistrosAno) {

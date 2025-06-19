@@ -51,8 +51,9 @@
 
    <script src="../seguranca/seguranca.js"></script>
 <script>
-  verificarLogin();
-  aplicarPermissoes();
+verificarLogin();         // Garante que o usuário está logado
+aplicarPermissoes();      // Aplica as restrições para visualizadores
+mostrarUsuarioLogado();   // Mostra tipo do usuário no topo
 </script>
   <script src="script-clientes-cancelados.js"></script>
 </body>
