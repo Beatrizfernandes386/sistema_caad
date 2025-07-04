@@ -99,19 +99,19 @@ function confirmarExclusao() {
   }
 }
 
-// Registrar log de exclusão
-    const logs = JSON.parse(localStorage.getItem("logsSistema")) || [];
-    const usuarioLogado = localStorage.getItem("usuarioLogado") || "desconhecido";
+// // Registrar log de exclusão
+//     const logs = JSON.parse(localStorage.getItem("logsSistema")) || [];
+//     const usuarioLogado = localStorage.getItem("usuarioLogado") || "desconhecido";
 
-    const log = {
-      dataHora: new Date().toLocaleString(),
-      acao: "Exclusão de cliente",
-      detalhes: `Cliente ${cliente.nome} excluído. IMEI: ${cliente.imei}, linha: ${cliente.linha}, motivo: ${motivo}`,
-      usuario: usuarioLogado
-    };
+//     const log = {
+//       dataHora: new Date().toLocaleString(),
+//       acao: "Exclusão de cliente",
+//       detalhes: `Cliente ${cliente.nome} excluído. IMEI: ${cliente.imei}, linha: ${cliente.linha}, motivo: ${motivo}`,
+//       usuario: usuarioLogado
+//     };
 
-    logs.push(log);
-    localStorage.setItem("logsSistema", JSON.stringify(logs));
+//     logs.push(log);
+//     localStorage.setItem("logsSistema", JSON.stringify(logs));
 
 // Função genérica do pop-up
 function mostrarPopup(mensagem, mostrarBotoes, callbackConfirmar) {
