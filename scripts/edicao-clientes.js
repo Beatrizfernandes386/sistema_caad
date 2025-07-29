@@ -126,10 +126,10 @@ function preencherIMEIEdicao(modeloSelecionado, imeiSelecionado = "", linhaSelec
 // Preenche as linhas disponíveis (chips ativos)
 function preencherChipsDisponiveisEdicao() {
   const chips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
-  const ativos = chips.filter(chip => chip.status === "ATIVO");
+  const ativos = chips.filter(chip => chip.status === "DISPONÍVEL");
 
   linhaEdicao.innerHTML = `<option value="">Linha</option>`;
-  ativos.forEach(chip => {
+  disponível.forEach(chip => {
     const option = document.createElement("option");
     option.value = chip.linha;
     option.textContent = chip.linha;
