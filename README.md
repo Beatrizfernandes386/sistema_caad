@@ -57,13 +57,13 @@
 
 Fluxograma do sistema
 
-📄 1. Página: Login
+## 📄 1. Página: Login
 Ações:
 Login com seleção de tipo de usuário: admin ou visualizador
 
 Verificação das credenciais via localStorage (ou banco futuramente)
 
-Fluxo:
+## Fluxo:
 Se credenciais corretas:
 
 Redireciona para dashboard.html
@@ -74,7 +74,7 @@ Se erradas:
 
 Exibe mensagem de erro
 
-📊 2. Página: Dashboard
+## 📊 2. Página: Dashboard
 Elementos:
 Gráficos com:
 
@@ -91,9 +91,9 @@ LocalStorage:
 
 clientesAtivos, clientesCancelados, sinistros, planos
 
-🧍‍♂️ 3. Página: Clientes Ativos
+## 🧍‍♂️ 3. Página: Clientes Ativos
 Ações:
-Cadastrar Cliente:
+## Cadastrar Cliente:
 
 Escolhe modelo e IMEI disponíveis do estoque (novo ou usado)
 
@@ -105,13 +105,13 @@ Remove equipamento e linha do estoque
 
 Salva log da ação
 
-Editar Cliente:
+## Editar Cliente:
 
 Permite trocar plano, equipamento e linha
 
 Atualiza clientesAtivos, estoque e logs
 
-Excluir Cliente:
+## Excluir Cliente:
 
 Pede nome, data e motivo
 
@@ -123,7 +123,7 @@ Remove cliente de clientesAtivos
 
 Salva log da ação
 
-Importar Clientes:
+## Importar Clientes:
 
 Leitura de arquivo .json ou .csv
 
@@ -131,13 +131,13 @@ Adiciona ao clientesAtivos
 
 Filtros em tempo real
 
-🚫 4. Página: Clientes Cancelados
+## 🚫 4. Página: Clientes Cancelados
 Visualização:
 Nome, data e motivo do cancelamento
 
 Equipamento utilizado
 
-🧃 5. Página: Estoque
+## 🧃 5. Página: Estoque
 Tabelas:
 Equipamentos Novos
 
@@ -154,13 +154,13 @@ Editar equipamento
 
 Filtro em tempo real
 
-❌ 6. Página: Equipamentos Perdidos
+## ❌ 6. Página: Equipamentos Perdidos
 Visualização:
 Lista dos itens excluídos no estoque
 
 Apenas leitura
 
-📦 7. Página: Planos
+## 📦 7. Página: Planos
 Tabelas:
 BASIC, ELITE, MASTER
 
@@ -179,7 +179,7 @@ Botões que atualizam contador e data de uso
 
 Filtro por nome do cliente
 
-🚓 8. Página: Sinistros
+## 🚓 8. Página: Sinistros
 Ações:
 Cadastrar sinistro:
 
@@ -203,7 +203,7 @@ Botão "Visualizar relatório" (abre modal)
 
 Exportar dados em JSON
 
-📜 9. Página: Logs
+## 📜 9. Página: Logs
 Visualização:
 Histórico de todas as ações críticas:
 
@@ -223,16 +223,11 @@ Ação executada
 
 Fonte: logsSistema no localStorage
 
-🔐 Controle de Permissões (Sistema inteiro)
+## 🔐 Controle de Permissões (Sistema inteiro)
 Ação	Admin ✅	Visualizador 🚫
-Cadastro/edição	Sim	Não
-Exclusão	Sim	Não
-Importar/Exportar	Sim	Não
-Visualizar dados	Sim	Sim
-Acesso a todas as páginas	Sim	Sim
-Enviar formulários	Sim	Bloqueado
 
-💾 Armazenamento atual (LocalStorage)
+
+## 💾 Armazenamento atual (LocalStorage)
 Principais chaves:
 clientesAtivos
 
