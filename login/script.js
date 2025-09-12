@@ -1,50 +1,60 @@
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const email = document.getElementById('email').value.trim();
   const senha = document.getElementById('senha').value.trim();
 
-  // Lista de usuários válidos
-  const usuarios = [
-    { email: "admin@caad.com", senha: "caad110207", tipo: "admin" },
-    { email: "visual@caad.com", senha: "caad110207", tipo: "visualizador" }
-  ];
+  if (!email || !senha) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
 
-  const usuarioEncontrado = usuarios.find(u => u.email === email && u.senha === senha);
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password: senha })
+    });
 
-  // Registrar log
-  registrarLog({
-    acao: "Login",
-    usuario: email,
-    tipo: usuarioEncontrado ? usuarioEncontrado.tipo : "desconhecido",
-    status: usuarioEncontrado ? "Sucesso" : "Falha",
-    dataHora: new Date().toLocaleString()
-  });
+    const data = await response.json();
 
-  if (usuarioEncontrado) {
-    // Salvar sessão
-    localStorage.setItem("usuarioLogado", JSON.stringify({
-      email: usuarioEncontrado.email,
-      tipo: usuarioEncontrado.tipo
-    }));
+    if (response.ok) {
+      // Salvar token no localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-    // Redireciona para o dashboard
-    window.location.href = "dashboard/dashboard.html";
-  } else {
-    alert("E-mail ou senha incorretos.");
+      // Redireciona para o dashboard
+      window.location.href = "../dashboard/dashboard.html";
+    } else {
+      alert(data.message || "E-mail ou senha incorretos.");
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    alert("Erro ao fazer login. Verifique se o servidor está rodando.");
   }
 });
 
-// Função para registrar logs
-function registrarLog(entry) {
-  const logs = JSON.parse(localStorage.getItem("logsSistema")) || [];
-  logs.push(entry);
-  localStorage.setItem("logsSistema", JSON.stringify(logs));
+// Função para verificar se usuário está logado
+function verificarLogin() {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+
+  if (!token || !user) {
+    window.location.href = "../index.html";
+    return;
+  }
+
+  // Opcional: verificar se o token ainda é válido
+  return JSON.parse(user);
 }
 
-function verificarLogin() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) {
-    window.location.href = "index.html";
-  }
+// Função para fazer logout
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = "../index.html";
 }
+
+// Usar função apiRequest da configuração centralizada

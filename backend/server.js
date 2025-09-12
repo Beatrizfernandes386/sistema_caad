@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8282;
 const JWT_SECRET = 'your-secret-key'; // In production, use environment variable
 
 // Middleware

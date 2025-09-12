@@ -1,72 +1,131 @@
-// 1. Recupera os dados do localStorage ou inicializa como array vazio
-let estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos")) || [];
-let estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados")) || [];
-let estoqueChips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
+// ========== GESTÃO DE ESTOQUE - API INTEGRATION ==========
 
-// 2. Atualiza o localStorage com os dados recuperados (se ainda não existirem)
-localStorage.setItem("estoqueNovos", JSON.stringify(estoqueNovos));
-localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
-localStorage.setItem("estoqueChips", JSON.stringify(estoqueChips));
-
-// 3. Referências de tabelas
+// Referências de tabelas
 const novosTable = document.querySelector("#tabela-equipamentos-novos");
 const usadosTable = document.querySelector("#tabela-equipamentos-usados");
 const chipsTable = document.querySelector("#tabela-chips");
 
-// 4. Função para atualizar todas as tabelas
-function atualizarTabelas() {
-  // Equipamentos Novos
-  novosTable.innerHTML = "";
-  estoqueNovos.forEach((item) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${item.modelo}</td><td>${item.imei}</td>`;
-    novosTable.appendChild(row);
-  });
+// ========== CARREGAMENTO DE DADOS ==========
 
-  // Equipamentos Usados
-  usadosTable.innerHTML = "";
-  estoqueUsados.forEach((equipamento) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${equipamento.modelo}</td>
-      <td>${equipamento.imei}</td>
-      <td>${equipamento.linha}</td>
-    `;
-    usadosTable.appendChild(row);
-  });
+// Carregar equipamentos novos
+async function carregarEquipamentosNovos() {
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/new');
+    if (!response.ok) {
+      console.error('Erro ao carregar equipamentos novos');
+      return;
+    }
 
-  // Chips
-  chipsTable.innerHTML = "";
-  estoqueChips.forEach((chip) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${chip.linha}</td><td>${chip.status}</td>`;
-    chipsTable.appendChild(row);
-  });
+    const equipamentos = await response.json();
+    novosTable.innerHTML = "";
+
+    equipamentos.forEach((item) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${item.model}</td><td>${item.imei}</td>`;
+      novosTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar equipamentos novos:', error);
+  }
 }
 
-// 5. Função para preencher o select de IMEI de exclusão com equipamentos usados
-function preencherSelectIMEI() {
-  const imeiSelect = document.getElementById("imei-excluir");
-  imeiSelect.innerHTML = '<option value="">Selecione o IMEI</option>'; // Limpa as opções existentes
+// Carregar equipamentos usados
+async function carregarEquipamentosUsados() {
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/used');
+    if (!response.ok) {
+      console.error('Erro ao carregar equipamentos usados');
+      return;
+    }
 
-  // Preenche com os IMEIs dos equipamentos usados
-  estoqueUsados.forEach((equipamento) => {
-    const option = document.createElement("option");
-    option.value = equipamento.imei;
-    option.textContent = equipamento.imei;
-    imeiSelect.appendChild(option);
-  });
+    const equipamentos = await response.json();
+    usadosTable.innerHTML = "";
+
+    equipamentos.forEach((equipamento) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${equipamento.model}</td>
+        <td>${equipamento.imei}</td>
+        <td>${equipamento.line || 'N/A'}</td>
+      `;
+      usadosTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar equipamentos usados:', error);
+  }
 }
 
-// 6. Evento para carregar as tabelas ao abrir a página
-window.addEventListener("load", () => {
-  atualizarTabelas();
-  preencherSelectIMEI(); // Preenche o select de IMEI ao carregar a página
+// Carregar chips
+async function carregarChips() {
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/sim-cards');
+    if (!response.ok) {
+      console.error('Erro ao carregar chips');
+      return;
+    }
+
+    const chips = await response.json();
+    chipsTable.innerHTML = "";
+
+    chips.forEach((chip) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${chip.line}</td><td>${chip.status}</td>`;
+      chipsTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar chips:', error);
+  }
+}
+
+// Função para atualizar todas as tabelas
+async function atualizarTabelas() {
+  await Promise.all([
+    carregarEquipamentosNovos(),
+    carregarEquipamentosUsados(),
+    carregarChips()
+  ]);
+}
+
+// ========== PREENCHIMENTO DE SELECTS ==========
+
+// Preencher o select de IMEI de exclusão com equipamentos usados
+async function preencherSelectIMEI() {
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/used');
+    if (!response.ok) {
+      console.error('Erro ao carregar equipamentos para exclusão');
+      return;
+    }
+
+    const equipamentos = await response.json();
+    const imeiSelect = document.getElementById("imei-excluir");
+    imeiSelect.innerHTML = '<option value="">Selecione o IMEI</option>';
+
+    equipamentos.forEach((equipamento) => {
+      const option = document.createElement("option");
+      option.value = equipamento.imei;
+      option.textContent = equipamento.imei;
+      imeiSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao preencher select IMEI:', error);
+  }
+}
+
+// ========== EVENTOS DE CARREGAMENTO ==========
+
+// Evento para carregar as tabelas ao abrir a página
+window.addEventListener("load", async () => {
+  await atualizarTabelas();
+  await preencherSelectIMEI();
 });
 
-// 7. Formulário de cadastrar equipamento
-document.getElementById("formCadastrarEquipamento").addEventListener("submit", (e) => {
+// ========== FORMULÁRIOS DE CADASTRO ==========
+
+// Formulário de cadastrar equipamento
+document.getElementById("formCadastrarEquipamento").addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const modelo = document.getElementById("modelo-equipamento").value.trim();
   const imei = document.getElementById("imei-equipamento").value.trim();
 
@@ -75,16 +134,31 @@ document.getElementById("formCadastrarEquipamento").addEventListener("submit", (
     return;
   }
 
-  estoqueNovos.push({ modelo, imei });
-  localStorage.setItem("estoqueNovos", JSON.stringify(estoqueNovos));
-  atualizarTabelas();
-  e.target.reset();
-  alert("Equipamento cadastrado com sucesso.");
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/equipment', {
+      method: 'POST',
+      body: JSON.stringify({ model: modelo, imei: imei })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert(result.message);
+      await atualizarTabelas();
+      e.target.reset();
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Erro ao cadastrar equipamento');
+    }
+  } catch (error) {
+    console.error('Erro ao cadastrar equipamento:', error);
+    alert('Erro ao cadastrar equipamento');
+  }
 });
 
-// 8. Formulário de cadastrar chip
-document.getElementById("formCadastrarChip").addEventListener("submit", (e) => {
+// Formulário de cadastrar chip
+document.getElementById("formCadastrarChip").addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const linha = document.getElementById("linha-chip").value.trim();
   const status = document.getElementById("status-chip").value;
 
@@ -93,29 +167,63 @@ document.getElementById("formCadastrarChip").addEventListener("submit", (e) => {
     return;
   }
 
-  estoqueChips.push({ linha, status });
-  localStorage.setItem("estoqueChips", JSON.stringify(estoqueChips));
-  atualizarTabelas();
-  e.target.reset();
-  alert("Chip cadastrado com sucesso.");
-});
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/sim-card', {
+      method: 'POST',
+      body: JSON.stringify({ line: linha, status: status })
+    });
 
-// Evento para preencher modelo e linha ao selecionar um IMEI
-document.getElementById("imei-excluir")?.addEventListener("change", function () {
-  const imeiSelecionado = this.value;
-  const equipamento = estoqueUsados.find(eq => eq.imei === imeiSelecionado);
-
-  if (equipamento) {
-    document.getElementById("modelo-excluir").value = equipamento.modelo;
-    document.getElementById("linha-excluir").value = equipamento.linha;
-  } else {
-    document.getElementById("modelo-excluir").value = "";
-    document.getElementById("linha-excluir").value = "";
+    if (response.ok) {
+      const result = await response.json();
+      alert(result.message);
+      await atualizarTabelas();
+      e.target.reset();
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Erro ao cadastrar chip');
+    }
+  } catch (error) {
+    console.error('Erro ao cadastrar chip:', error);
+    alert('Erro ao cadastrar chip');
   }
 });
 
-// Lógica do botão de excluir equipamento
-document.getElementById("formExcluirEquipamento")?.addEventListener("submit", (e) => {
+// ========== EVENTOS DE EXCLUSÃO ==========
+
+// Evento para preencher modelo e linha ao selecionar um IMEI
+document.getElementById("imei-excluir")?.addEventListener("change", async function () {
+  const imeiSelecionado = this.value;
+
+  if (!imeiSelecionado) {
+    document.getElementById("modelo-excluir").value = "";
+    document.getElementById("linha-excluir").value = "";
+    return;
+  }
+
+  try {
+    const response = await apiRequest('http://192.168.0.18:8282/api/inventory/used');
+    if (!response.ok) {
+      console.error('Erro ao buscar equipamento');
+      return;
+    }
+
+    const equipamentos = await response.json();
+    const equipamento = equipamentos.find(eq => eq.imei === imeiSelecionado);
+
+    if (equipamento) {
+      document.getElementById("modelo-excluir").value = equipamento.model;
+      document.getElementById("linha-excluir").value = equipamento.line || "";
+    } else {
+      document.getElementById("modelo-excluir").value = "";
+      document.getElementById("linha-excluir").value = "";
+    }
+  } catch (error) {
+    console.error('Erro ao preencher dados do equipamento:', error);
+  }
+});
+
+// Formulário de excluir equipamento
+document.getElementById("formExcluirEquipamento")?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const modelo = document.getElementById("modelo-excluir").value;
@@ -125,40 +233,35 @@ document.getElementById("formExcluirEquipamento")?.addEventListener("submit", (e
   const motivo = document.getElementById("motivo-excluir").value.trim();
   const statusChip = document.getElementById("status-chip-excluir").value;
 
-  if (!modelo || !imei || !linha || !data || !motivo || !statusChip) {
-    alert("Preencha todos os campos.");
+  if (!modelo || !imei || !data || !motivo || !statusChip) {
+    alert("Preencha todos os campos obrigatórios.");
     return;
   }
 
-  // Remove do estoque de usados
-  estoqueUsados = estoqueUsados.filter(equipamento => equipamento.imei !== imei);
-  localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
+  try {
+    const response = await apiRequest(`http://192.168.0.18:8282/api/inventory/equipment/${imei}`, {
+      method: 'DELETE',
+      body: JSON.stringify({
+        reason: motivo,
+        date: data,
+        statusChip: statusChip
+      })
+    });
 
-  // Se ATIVO, devolve o chip ao estoque
-  if (statusChip === "DISPONÍVEL") {
-    estoqueChips.push({ linha, status: "DISPONÍVEL" });
-    localStorage.setItem("estoqueChips", JSON.stringify(estoqueChips));
+    if (response.ok) {
+      const result = await response.json();
+      alert(result.message);
+
+      // Atualiza a visualização
+      await atualizarTabelas();
+      await preencherSelectIMEI();
+      e.target.reset();
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Erro ao excluir equipamento');
+    }
+  } catch (error) {
+    console.error('Erro ao excluir equipamento:', error);
+    alert('Erro ao excluir equipamento');
   }
-  
-  // Formatar a data para PT-BR (dd/mm/yyyy)
-  const partesData = data.split("-");
-  const dataFormatada = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
-
-  // Adiciona aos equipamentos perdidos
-  let equipamentosPerdidos = JSON.parse(localStorage.getItem("equipamentosPerdidos")) || [];
-  equipamentosPerdidos.push({
-    modelo,
-    imei,
-    linha,
-    data: dataFormatada,
-    motivo,
-    statusChip
-  });
-  localStorage.setItem("equipamentosPerdidos", JSON.stringify(equipamentosPerdidos));
-
-  // Atualiza a visualização
-  atualizarTabelas();
-  preencherSelectIMEI(); // Atualiza o select de IMEI
-  e.target.reset();
-  alert("Equipamento excluído com sucesso.");
 });

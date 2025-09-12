@@ -1,33 +1,57 @@
 // Verifica se o usuário está logado (usado para páginas comuns)
 function verificarLogin() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario) {
-    const caminhoLogin = window.location.origin + window.location.pathname.split("/").slice(0, -1).join("/") + "/index.html";
-    window.location.href = caminhoLogin;
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+
+  if (!token || !user) {
+    window.location.href = "../index.html";
+    return;
   }
+
+  // Verificar se o token ainda é válido fazendo uma requisição de teste
+  fetch(`${API_BASE_URL}/auth/me`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Token inválido');
+    }
+    return response.json();
+  })
+  .catch(error => {
+    console.error('Token verification failed:', error);
+    logout();
+  });
 }
 
 // Verifica se o usuário está logado e, se necessário, se é admin
 function verificarAcesso(requerAdmin = false) {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
 
-  if (!usuario) {
+  if (!token || !user) {
     alert("Acesso não autorizado!");
-    const caminhoLogin = window.location.origin + window.location.pathname.split("/").slice(0, -1).join("/") + "/index.html";
-    window.location.href = caminhoLogin;
+    window.location.href = "../index.html";
     return;
   }
 
-  if (requerAdmin && usuario.tipo !== "admin") {
+  const userData = JSON.parse(user);
+
+  if (requerAdmin && userData.role !== "admin") {
     alert("Você não tem permissão para acessar esta página.");
     window.location.href = "../dashboard/dashboard.html";
   }
 }
 
-// Aplica restrições se o usuário for do tipo 'visualizador'
+// Aplica restrições se o usuário for do tipo 'viewer'
 function aplicarPermissoes() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (!usuario || usuario.tipo !== "visualizador") return;
+  const user = localStorage.getItem('user');
+  if (!user) return;
+
+  const userData = JSON.parse(user);
+  if (userData.role !== "viewer") return;
 
   // Desativa botões de ação
   const botoes = ["cadastrar-btn", "editar-btn", "excluir-btn", "importar-btn"];
@@ -55,15 +79,39 @@ function aplicarPermissoes() {
 
 // Mostra o tipo de usuário no cabeçalho
 function mostrarUsuarioLogado() {
-  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
-  if (usuario && usuario.tipo && document.getElementById("tipo-usuario")) {
-    document.getElementById("tipo-usuario").textContent = usuario.tipo;
+  const user = localStorage.getItem('user');
+  if (user && document.getElementById("tipo-usuario")) {
+    const userData = JSON.parse(user);
+    document.getElementById("tipo-usuario").textContent = userData.role;
   }
 }
 
 function logout() {
-  localStorage.removeItem("usuarioLogado");
-  localStorage.removeItem("tipoUsuario");
-  window.location.href = "/index.html"; // Caminho absoluto para a raiz
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = "../index.html";
+}
+
+// Função helper para fazer requisições autenticadas
+async function apiRequest(url, options = {}) {
+  const token = localStorage.getItem('token');
+
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers
+    }
+  };
+
+  const response = await fetch(url, { ...defaultOptions, ...options });
+
+  if (response.status === 401) {
+    // Token expirado ou inválido
+    logout();
+    return;
+  }
+
+  return response;
 }
 

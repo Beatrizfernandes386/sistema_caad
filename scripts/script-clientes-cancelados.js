@@ -3,32 +3,73 @@ const filtroInput = document.getElementById("filtro-cancelados");
 const importarBtn = document.getElementById("importar-cancelados");
 const importarInput = document.getElementById("importar-input");
 
-// Carrega os dados dos clientes cancelados do localStorage e exibe na tabela
-function carregarClientesCancelados() {
-  tabela.innerHTML = "";
-  const dados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
+// ========== CARREGAMENTO DE DADOS ==========
 
-  dados.forEach((cliente) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${cliente.nome}</td>
-      <td>${cliente.dataInstalacao}</td>
-      <td>${cliente.motivo}</td>
-      <td>${formatarData(cliente.dataCancelamento)}</td>
-    `;
-    tabela.appendChild(tr);
-  });
+// Carrega os dados dos clientes cancelados da API
+async function carregarClientesCancelados() {
+  try {
+    const response = await apiRequest('${API_CONFIG.API_URL}/api/clients/canceled');
+    if (!response.ok) {
+      console.error('Erro ao carregar clientes cancelados');
+      return;
+    }
+
+    const dados = await response.json();
+    tabela.innerHTML = "";
+
+    dados.forEach((cliente) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${cliente.name}</td>
+        <td>${cliente.date}</td>
+        <td>${cliente.service || 'N/A'}</td>
+        <td>${formatarData(cliente.date)}</td>
+      `;
+      tabela.appendChild(tr);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar clientes cancelados:', error);
+  }
 }
 
 // Filtra os clientes cancelados com base no termo de busca
-function filtrarClientes() {
+async function filtrarClientes() {
   const termo = filtroInput.value.toLowerCase();
-  const linhas = tabela.querySelectorAll("tr");
 
-  linhas.forEach((linha) => {
-    const textoLinha = linha.textContent.toLowerCase();
-    linha.style.display = textoLinha.includes(termo) ? "" : "none";
-  });
+  if (termo.trim() === "") {
+    // Se não há termo, recarrega todos
+    await carregarClientesCancelados();
+    return;
+  }
+
+  try {
+    const response = await apiRequest('${API_CONFIG.API_URL}/api/clients/canceled');
+    if (!response.ok) {
+      console.error('Erro ao filtrar clientes cancelados');
+      return;
+    }
+
+    const dados = await response.json();
+    const filtrados = dados.filter(cliente =>
+      cliente.name.toLowerCase().includes(termo) ||
+      cliente.service?.toLowerCase().includes(termo) ||
+      cliente.date?.toLowerCase().includes(termo)
+    );
+
+    tabela.innerHTML = "";
+    filtrados.forEach((cliente) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${cliente.name}</td>
+        <td>${cliente.date}</td>
+        <td>${cliente.service || 'N/A'}</td>
+        <td>${formatarData(cliente.date)}</td>
+      `;
+      tabela.appendChild(tr);
+    });
+  } catch (error) {
+    console.error('Erro ao filtrar clientes:', error);
+  }
 }
 
 // Formata a data no formato DD/MM/AAAA
@@ -42,26 +83,27 @@ if (filtroInput) {
   filtroInput.addEventListener("input", filtrarClientes);
 }
 
+// ========== IMPORTAÇÃO DE DADOS ==========
+
 // Função para importar dados JSON
 document.getElementById("importar-btn").addEventListener("click", () => {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = ".json";
 
-  input.addEventListener("change", (event) => {
+  input.addEventListener("change", async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function (event) {
+    reader.onload = async function (event) {
       try {
         const dadosImportados = JSON.parse(event.target.result);
         if (Array.isArray(dadosImportados)) {
-          const clientesExistentes = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
-          const novosClientes = [...clientesExistentes, ...dadosImportados];
-          localStorage.setItem("clientesCancelados", JSON.stringify(novosClientes));
-          carregarClientesCancelados();
-          alert("Importação concluída com sucesso!");
+          // Nota: Como os clientes cancelados são gerados automaticamente
+          // pela exclusão de clientes ativos, a importação direta pode
+          // não ser necessária. Mas mantemos a funcionalidade para compatibilidade
+          alert("Importação não suportada para clientes cancelados.\nUse a funcionalidade de exclusão de clientes ativos.");
         } else {
           alert("O arquivo não contém um array válido.");
         }
@@ -77,5 +119,9 @@ document.getElementById("importar-btn").addEventListener("click", () => {
 });
 
 
+// ========== INICIALIZAÇÃO ==========
+
 // Carrega os clientes cancelados ao iniciar
-carregarClientesCancelados();
+window.addEventListener("load", async () => {
+  await carregarClientesCancelados();
+});

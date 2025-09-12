@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Logs do Sistema</title>
   <link rel="stylesheet" href="../assets/css/log.css">
+  <!-- Configuração centralizada da API -->
+  <script src="../api-config.js"></script>
 </head>
 <body>
   <header>
@@ -37,13 +39,13 @@
     </tbody>
   </table>
 
-<script src="seguranca/seguranca.js"></script>
+<script src="../seguranca/seguranca.js"></script>
 <script>
 verificarLogin();         // Garante que o usuário está logado
 aplicarPermissoes();      // Aplica as restrições para visualizadores
 mostrarUsuarioLogado();   // Mostra tipo do usuário no topo
 verificarAcesso(true);
 </script>
-  <script src="scripts/script-log.js"></script>
+  <script src="../scripts/script-log.js"></script>
 </body>
 </html>

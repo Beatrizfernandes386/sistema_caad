@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste da API - Sistema CAAD</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste da API - Sistema CAAD</h1>
+
+    <div class="test-section">
+        <h3>Configuração da API</h3>
+        <p><strong>URL Base:</strong> <span id="api-url"></span></p>
+        <p><strong>Status do Servidor:</strong> <span id="server-status">Verificando...</span></p>
+        <button onclick="testConnection()">Testar Conexão</button>
+    </div>
+
+    <div class="test-section">
+        <h3>📱 Teste de SIM Cards Disponíveis</h3>
+        <button onclick="testAvailableSimCards()">Carregar SIM Cards Disponíveis</button>
+        <div id="sim-cards-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📦 Teste de Equipamentos Novos</h3>
+        <button onclick="testNewEquipment()">Carregar Equipamentos Novos</button>
+        <div id="equipment-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>👥 Teste de Clientes Ativos</h3>
+        <button onclick="testActiveClients()">Carregar Clientes Ativos</button>
+        <div id="clients-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔐 Teste de Autenticação</h3>
+        <input type="email" id="test-email" placeholder="E-mail" value="admin@caad.com">
+        <input type="password" id="test-password" placeholder="Senha" value="caad110207">
+        <button onclick="testLogin()">Fazer Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <!-- Incluir configuração centralizada -->
+    <script src="config.js"></script>
+
+    <script>
+        // Atualizar URL da API na interface
+        document.getElementById('api-url').textContent = API_CONFIG.API_URL;
+
+        // Função para testar conexão com o servidor
+        async function testConnection() {
+            const statusElement = document.getElementById('server-status');
+            try {
+                const response = await fetch(`${API_CONFIG.API_URL}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || 'invalid'}`
+                    }
+                });
+
+                if (response.ok) {
+                    statusElement.textContent = '✅ Servidor Online';
+                    statusElement.style.color = 'green';
+                } else if (response.status === 401) {
+                    statusElement.textContent = '⚠️ Servidor Online (não autenticado)';
+                    statusElement.style.color = 'orange';
+                } else {
+                    statusElement.textContent = '❌ Erro no servidor';
+                    statusElement.style.color = 'red';
+                }
+            } catch (error) {
+                statusElement.textContent = '❌ Servidor Offline';
+                statusElement.style.color = 'red';
+                console.error('Connection test error:', error);
+            }
+        }
+
+        // Testar SIM cards disponíveis
+        async function testAvailableSimCards() {
+            const resultElement = document.getElementById('sim-cards-result');
+            resultElement.innerHTML = 'Carregando...';
+
+            try {
+                const response = await apiRequest(`${API_CONFIG.API_URL}/api/inventory/available-sim-cards`);
+
+                if (response.ok) {
+                    const simCards = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="success">
+                            <h4>✅ SIM Cards Disponíveis Encontrados: ${simCards.length}</h4>
+                            <pre>${JSON.stringify(simCards, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    const error = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Erro ao carregar SIM cards</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Erro de conexão</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Testar equipamentos novos
+        async function testNewEquipment() {
+            const resultElement = document.getElementById('equipment-result');
+            resultElement.innerHTML = 'Carregando...';
+
+            try {
+                const response = await apiRequest(`${API_CONFIG.API_URL}/api/inventory/new`);
+
+                if (response.ok) {
+                    const equipment = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Equipamentos Novos Encontrados: ${equipment.length}</h4>
+                            <pre>${JSON.stringify(equipment, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    const error = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Erro ao carregar equipamentos</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Erro de conexão</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Testar clientes ativos
+        async function testActiveClients() {
+            const resultElement = document.getElementById('clients-result');
+            resultElement.innerHTML = 'Carregando...';
+
+            try {
+                const response = await apiRequest(`${API_CONFIG.API_URL}/api/clients/active`);
+
+                if (response.ok) {
+                    const clients = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Clientes Ativos Encontrados: ${clients.length}</h4>
+                            <pre>${JSON.stringify(clients.slice(0, 3), null, 2)}</pre>
+                            ${clients.length > 3 ? '<p>... (mostrando apenas os primeiros 3)</p>' : ''}
+                        </div>
+                    `;
+                } else {
+                    const error = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Erro ao carregar clientes</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Erro de conexão</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Testar login
+        async function testLogin() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            const resultElement = document.getElementById('login-result');
+
+            resultElement.innerHTML = 'Fazendo login...';
+
+            try {
+                const response = await fetch(`${API_CONFIG.API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    resultElement.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Login realizado com sucesso!</h4>
+                            <p><strong>Usuário:</strong> ${data.user.email}</p>
+                            <p><strong>Role:</strong> ${data.user.role}</p>
+                            <p><strong>Token salvo no localStorage</strong></p>
+                        </div>
+                    `;
+                } else {
+                    const error = await response.json();
+                    resultElement.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Falha no login</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Erro de conexão</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Testar conexão automaticamente ao carregar
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+    </script>
+</body>
+</html>

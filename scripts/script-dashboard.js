@@ -1,7 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
-  preencherAnoAtual();
-  atualizarIndicadores();
-  atualizarGraficos();
+document.addEventListener("DOMContentLoaded", async () => {
+  await preencherAnoAtual();
+  await atualizarIndicadores();
+  await atualizarGraficos();
 
   // Corrige valor do mês (0-11) para o seletor
   document.getElementById("filtro-mes").value = new Date().getMonth();
@@ -11,87 +11,146 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const graficos = {}; // Guarda os gráficos para destruição segura antes de recriar
 
-function preencherAnoAtual() {
-  const anos = new Set();
-  const clientesAtivos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
-  const clientesCancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
-  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+async function preencherAnoAtual() {
+  try {
+    const anos = new Set();
 
-  [...clientesAtivos, ...clientesCancelados, ...sinistros].forEach(item => {
-    const data = new Date(item.data || item.dataCancelamento || item.dataSinistro);
-    if (!isNaN(data)) anos.add(data.getFullYear());
-  });
+    // Fetch data from APIs
+    const [activeResponse, canceledResponse, claimsResponse] = await Promise.all([
+      apiRequest('http://192.168.0.18:8282/api/clients/active'),
+      apiRequest('http://192.168.0.18:8282/api/clients/canceled'),
+      apiRequest('http://192.168.0.18:8282/api/claims')
+    ]);
 
-  const filtroAno = document.getElementById("filtro-ano");
-  filtroAno.innerHTML = "";
-  const anosOrdenados = Array.from(anos).sort((a, b) => b - a);
+    if (!activeResponse.ok || !canceledResponse.ok || !claimsResponse.ok) {
+      console.error('Failed to fetch data for years');
+      return;
+    }
 
-  anosOrdenados.forEach(ano => {
-    const option = document.createElement("option");
-    option.value = ano;
-    option.textContent = ano;
-    filtroAno.appendChild(option);
-  });
+    const clientesAtivos = await activeResponse.json();
+    const clientesCancelados = await canceledResponse.json();
+    const sinistros = await claimsResponse.json();
 
-  // Seleciona o ano atual, se existir
-  const anoAtual = new Date().getFullYear();
-  if (anos.has(anoAtual)) {
-    filtroAno.value = anoAtual;
-  } else if (anosOrdenados.length > 0) {
-    filtroAno.value = anosOrdenados[0];
+    [...clientesAtivos, ...clientesCancelados, ...sinistros].forEach(item => {
+      const data = new Date(item.date || item.incident_date);
+      if (!isNaN(data)) anos.add(data.getFullYear());
+    });
+
+    const filtroAno = document.getElementById("filtro-ano");
+    filtroAno.innerHTML = "";
+    const anosOrdenados = Array.from(anos).sort((a, b) => b - a);
+
+    anosOrdenados.forEach(ano => {
+      const option = document.createElement("option");
+      option.value = ano;
+      option.textContent = ano;
+      filtroAno.appendChild(option);
+    });
+
+    // Seleciona o ano atual, se existir
+    const anoAtual = new Date().getFullYear();
+    if (anos.has(anoAtual)) {
+      filtroAno.value = anoAtual;
+    } else if (anosOrdenados.length > 0) {
+      filtroAno.value = anosOrdenados[0];
+    }
+  } catch (error) {
+    console.error('Error in preencherAnoAtual:', error);
   }
 }
 
-function atualizarIndicadores() {
-  const ativos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
-  const cancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
-  const equipamentosPerdidos = JSON.parse(localStorage.getItem("equipamentosPerdidos") || "[]");
-  const estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos") || "[]");
-  const estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados") || "[]");
-  const chips = JSON.parse(localStorage.getItem("estoqueChips") || "[]");
-  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+async function atualizarIndicadores() {
+  try {
+    const mesAtual = new Date().getMonth();
+    const anoAtual = new Date().getFullYear();
 
-  const mesAtual = new Date().getMonth();
-  const anoAtual = new Date().getFullYear();
+    // Fetch all data from APIs
+    const [
+      activeResponse,
+      canceledResponse,
+      lostResponse,
+      newResponse,
+      usedResponse,
+      simResponse,
+      claimsResponse
+    ] = await Promise.all([
+      apiRequest(`${API_BASE_URL}/clients/active`),
+      apiRequest(`${API_CONFIG.API_URL}/api/clients/canceled`),
+      apiRequest('http://192.168.0.18:8282/api/inventory/lost'),
+      apiRequest('http://192.168.0.18:8282/api/inventory/new'),
+      apiRequest('http://192.168.0.18:8282/api/inventory/used'),
+      apiRequest('http://192.168.0.18:8282/api/inventory/sim-cards'),
+      apiRequest('http://192.168.0.18:8282/api/claims')
+    ]);
 
-  const instalacoesNoMes = ativos.filter(c => {
-    const data = new Date(c.data);
-    return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
-  }).length;
+    if (!activeResponse.ok || !canceledResponse.ok || !lostResponse.ok ||
+        !newResponse.ok || !usedResponse.ok || !simResponse.ok || !claimsResponse.ok) {
+      console.error('Failed to fetch indicator data');
+      return;
+    }
 
-  const cancelamentosNoMes = cancelados.filter(c => {
-    const data = new Date(c.dataCancelamento);
-    return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
-  }).length;
+    const ativos = await activeResponse.json();
+    const cancelados = await canceledResponse.json();
+    const equipamentosPerdidos = await lostResponse.json();
+    const estoqueNovos = await newResponse.json();
+    const estoqueUsados = await usedResponse.json();
+    const chips = await simResponse.json();
+    const sinistros = await claimsResponse.json();
 
-  const sinistrosAno = sinistros.filter(s => {
-    const data = new Date(s.dataSinistro);
-    return !isNaN(data) && data.getFullYear() === anoAtual;
-  }).length;
+    const instalacoesNoMes = ativos.filter(c => {
+      const data = new Date(c.date);
+      return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
+    }).length;
 
-  const estoqueChips = chips.filter(c => c.status === "DISPONÍVEL").length;
-  const equipamentosDisponiveis = [...estoqueNovos, ...estoqueUsados].length;
+    const cancelamentosNoMes = cancelados.filter(c => {
+      const data = new Date(c.date);
+      return !isNaN(data) && data.getMonth() === mesAtual && data.getFullYear() === anoAtual;
+    }).length;
 
-  document.getElementById("clientes-ativos").textContent = ativos.length;
-  document.getElementById("instalacoes-mes").textContent = instalacoesNoMes;
-  document.getElementById("cancelamentos-mes").textContent = cancelamentosNoMes;
-  document.getElementById("equipamentos-perdidos").textContent = equipamentosPerdidos.length;
-  document.getElementById("equipamentos-estoque").textContent = equipamentosDisponiveis;
-  document.getElementById("estoqueChips").textContent = estoqueChips;
+    const sinistrosAno = sinistros.filter(s => {
+      const data = new Date(s.incident_date);
+      return !isNaN(data) && data.getFullYear() === anoAtual;
+    }).length;
 
-  const indicadorSinistrosAno = document.getElementById("sinistros-ano");
-  if (indicadorSinistrosAno) {
-    indicadorSinistrosAno.textContent = sinistrosAno;
+    const estoqueChips = chips.filter(c => c.status === "available").length;
+    const equipamentosDisponiveis = [...estoqueNovos, ...estoqueUsados].length;
+
+    document.getElementById("clientes-ativos").textContent = ativos.length;
+    document.getElementById("instalacoes-mes").textContent = instalacoesNoMes;
+    document.getElementById("cancelamentos-mes").textContent = cancelamentosNoMes;
+    document.getElementById("equipamentos-perdidos").textContent = equipamentosPerdidos.length;
+    document.getElementById("equipamentos-estoque").textContent = equipamentosDisponiveis;
+    document.getElementById("estoqueChips").textContent = estoqueChips;
+
+    const indicadorSinistrosAno = document.getElementById("sinistros-ano");
+    if (indicadorSinistrosAno) {
+      indicadorSinistrosAno.textContent = sinistrosAno;
+    }
+  } catch (error) {
+    console.error('Error in atualizarIndicadores:', error);
   }
 }
 
-function atualizarGraficos() {
-  const mes = parseInt(document.getElementById("filtro-mes").value);
-  const ano = parseInt(document.getElementById("filtro-ano").value);
+async function atualizarGraficos() {
+  try {
+    const mes = parseInt(document.getElementById("filtro-mes").value);
+    const ano = parseInt(document.getElementById("filtro-ano").value);
 
-  const ativos = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
-  const cancelados = JSON.parse(localStorage.getItem("clientesCancelados") || "[]");
-  const sinistros = JSON.parse(localStorage.getItem("sinistros") || "[]");
+    // Fetch data from APIs
+    const [activeResponse, canceledResponse, claimsResponse] = await Promise.all([
+      apiRequest('http://192.168.0.18:8282/api/clients/active'),
+      apiRequest('http://192.168.0.18:8282/api/clients/canceled'),
+      apiRequest('http://192.168.0.18:8282/api/claims')
+    ]);
+
+    if (!activeResponse.ok || !canceledResponse.ok || !claimsResponse.ok) {
+      console.error('Failed to fetch chart data');
+      return;
+    }
+
+    const ativos = await activeResponse.json();
+    const cancelados = await canceledResponse.json();
+    const sinistros = await claimsResponse.json();
 
   // --- Gráfico 1: Distribuição de planos ---
   const planos = { BASIC: 0, ELITE: 0, MASTER: 0 };
@@ -207,4 +266,7 @@ function atualizarGraficos() {
       }
     }
   });
+  } catch (error) {
+    console.error('Error in atualizarGraficos:', error);
+  }
 }

@@ -28,46 +28,81 @@ function abrirModal(modal) {
 }
 
 // Preenche a lista de clientes
-function preencherSelectClientesEdicao() {
-  const clientes = JSON.parse(localStorage.getItem("clientesAtivos")) || [];
-  clienteSelect.innerHTML = `<option value="">Selecione o cliente</option>`;
+async function preencherSelectClientesEdicao() {
+  try {
+    const response = await apiRequest(`${API_BASE_URL}/clients/active`);
+    if (!response.ok) {
+      console.error('Erro ao carregar clientes para edição');
+      return;
+    }
 
-  clientes.forEach((cliente, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = cliente.nome;
-    clienteSelect.appendChild(option);
-  });
+    const clientes = await response.json();
+    clienteSelect.innerHTML = `<option value="">Selecione o cliente</option>`;
+
+    clientes.forEach((cliente) => {
+      const option = document.createElement("option");
+      option.value = cliente.id;
+      option.textContent = cliente.name;
+      clienteSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao preencher select de clientes:', error);
+  }
 }
 
 // Preenche os modelos disponíveis no estoque
-function preencherModelosEdicao() {
-  const estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos")) || [];
-  const estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados")) || [];
+async function preencherModelosEdicao() {
+  try {
+    const [newResponse, usedResponse] = await Promise.all([
+      apiRequest('${API_CONFIG.API_URL}/api/inventory/new'),
+      apiRequest('${API_CONFIG.API_URL}/api/inventory/used')
+    ]);
 
-  modeloEdicao.innerHTML = `<option value="">Modelo</option>`;
-  const modelos = new Set();
+    if (!newResponse.ok || !usedResponse.ok) {
+      console.error('Erro ao carregar equipamentos para edição');
+      return;
+    }
 
-  [...estoqueNovos, ...estoqueUsados].forEach(item => modelos.add(item.modelo));
-  modelos.forEach(modelo => {
-    const option = document.createElement("option");
-    option.value = modelo;
-    option.textContent = modelo;
-    modeloEdicao.appendChild(option);
-  });
+    const estoqueNovos = await newResponse.json();
+    const estoqueUsados = await usedResponse.json();
+
+    modeloEdicao.innerHTML = `<option value="">Modelo</option>`;
+    const modelos = new Set();
+
+    [...estoqueNovos, ...estoqueUsados].forEach(item => modelos.add(item.model));
+    modelos.forEach(modelo => {
+      const option = document.createElement("option");
+      option.value = modelo;
+      option.textContent = modelo;
+      modeloEdicao.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao preencher modelos:', error);
+  }
 }
 
 // Ao selecionar um cliente, preencher campos
-clienteSelect.addEventListener("change", () => {
-  const clientes = JSON.parse(localStorage.getItem("clientesAtivos")) || [];
-  const cliente = clientes[clienteSelect.value];
-  if (!cliente) return;
+clienteSelect.addEventListener("change", async () => {
+  const clientId = clienteSelect.value;
+  if (!clientId) return;
 
-  planoEdicao.value = cliente.plano;
-  veiculoEdicao.value = cliente.veiculo;
-  modeloEdicao.value = cliente.modelo;
+  try {
+    const response = await apiRequest(`${API_CONFIG.API_URL}/api/clients/${clientId}`);
+    if (!response.ok) {
+      console.error('Erro ao carregar cliente para edição');
+      return;
+    }
 
-  preencherIMEIEdicao(cliente.modelo, cliente.imei, cliente.linha);
+    const cliente = await response.json();
+
+    planoEdicao.value = cliente.plan;
+    veiculoEdicao.value = cliente.vehicle;
+    modeloEdicao.value = cliente.model;
+
+    preencherIMEIEdicao(cliente.model, cliente.imei, cliente.line);
+  } catch (error) {
+    console.error('Erro ao carregar cliente:', error);
+  }
 });
 
 // Quando mudar o modelo, atualizar IMEIs disponíveis
@@ -76,75 +111,95 @@ modeloEdicao.addEventListener("change", () => {
 });
 
 // Preenche IMEIs e armazena equipamentos disponíveis
-function preencherIMEIEdicao(modeloSelecionado, imeiSelecionado = "", linhaSelecionada = "") {
-  const estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos")) || [];
-  const estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados")) || [];
+async function preencherIMEIEdicao(modeloSelecionado, imeiSelecionado = "", linhaSelecionada = "") {
+  try {
+    const [newResponse, usedResponse] = await Promise.all([
+      apiRequest('${API_CONFIG.API_URL}/api/inventory/new'),
+      apiRequest('${API_CONFIG.API_URL}/api/inventory/used')
+    ]);
 
-  const equipamentos = [
-    ...estoqueNovos.filter(eq => eq.modelo === modeloSelecionado),
-    ...estoqueUsados.filter(eq => eq.modelo === modeloSelecionado)
-  ];
-
-  imeiEdicao.innerHTML = `<option value="">IMEI</option>`;
-  equipamentos.forEach(eq => {
-    const option = document.createElement("option");
-    option.value = eq.imei;
-    option.textContent = eq.imei;
-    imeiEdicao.appendChild(option);
-  });
-
-  if (imeiSelecionado) imeiEdicao.value = imeiSelecionado;
-
-  imeiEdicao.onchange = () => {
-    const imei = imeiEdicao.value;
-    const eqNovo = estoqueNovos.find(eq => eq.imei === imei);
-    const eqUsado = estoqueUsados.find(eq => eq.imei === imei);
-
-    if (eqNovo) {
-      preencherChipsDisponiveisEdicao();
-      linhaEdicao.disabled = false;
-      linhaEdicao.value = "";
-    } else if (eqUsado) {
-      linhaEdicao.innerHTML = `<option value="${eqUsado.linha}">${eqUsado.linha}</option>`;
-      linhaEdicao.disabled = true;
+    if (!newResponse.ok || !usedResponse.ok) {
+      console.error('Erro ao carregar equipamentos para edição');
+      return;
     }
-  };
 
-  // Se já tiver um IMEI pré-selecionado, forçar disparo e preencher linha
-  if (imeiSelecionado) {
-    const evento = new Event("change");
-    imeiEdicao.dispatchEvent(evento);
+    const estoqueNovos = await newResponse.json();
+    const estoqueUsados = await usedResponse.json();
 
-    setTimeout(() => {
-      if (!linhaEdicao.disabled) {
-        linhaEdicao.value = linhaSelecionada;
+    const equipamentos = [
+      ...estoqueNovos.filter(eq => eq.model === modeloSelecionado),
+      ...estoqueUsados.filter(eq => eq.model === modeloSelecionado)
+    ];
+
+    imeiEdicao.innerHTML = `<option value="">IMEI</option>`;
+    equipamentos.forEach(eq => {
+      const option = document.createElement("option");
+      option.value = eq.imei;
+      option.textContent = eq.imei;
+      imeiEdicao.appendChild(option);
+    });
+
+    if (imeiSelecionado) imeiEdicao.value = imeiSelecionado;
+
+    imeiEdicao.onchange = () => {
+      const imei = imeiEdicao.value;
+      const eqNovo = estoqueNovos.find(eq => eq.imei === imei);
+      const eqUsado = estoqueUsados.find(eq => eq.imei === imei);
+
+      if (eqNovo) {
+        preencherChipsDisponiveisEdicao();
+        linhaEdicao.disabled = false;
+        linhaEdicao.value = "";
+      } else if (eqUsado) {
+        linhaEdicao.innerHTML = `<option value="${eqUsado.line}">${eqUsado.line}</option>`;
+        linhaEdicao.disabled = true;
       }
-    }, 100);
+    };
+
+    // Se já tiver um IMEI pré-selecionado, forçar disparo e preencher linha
+    if (imeiSelecionado) {
+      const evento = new Event("change");
+      imeiEdicao.dispatchEvent(evento);
+
+      setTimeout(() => {
+        if (!linhaEdicao.disabled) {
+          linhaEdicao.value = linhaSelecionada;
+        }
+      }, 100);
+    }
+  } catch (error) {
+    console.error('Erro ao preencher IMEI para edição:', error);
   }
 }
 
 // Preenche as linhas disponíveis (chips ativos)
-function preencherChipsDisponiveisEdicao() {
-  const chips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
-  const ativos = chips.filter(chip => chip.status === "DISPONÍVEL");
+async function preencherChipsDisponiveisEdicao() {
+  try {
+    const response = await apiRequest('${API_CONFIG.API_URL}/api/inventory/available-sim-cards');
+    if (!response.ok) {
+      console.error('Erro ao carregar chips disponíveis para edição');
+      return;
+    }
 
-  linhaEdicao.innerHTML = `<option value="">Linha</option>`;
-  disponível.forEach(chip => {
-    const option = document.createElement("option");
-    option.value = chip.linha;
-    option.textContent = chip.linha;
-    linhaEdicao.appendChild(option);
-  });
+    const ativos = await response.json();
+
+    linhaEdicao.innerHTML = `<option value="">Linha</option>`;
+    ativos.forEach(chip => {
+      const option = document.createElement("option");
+      option.value = chip.line;
+      option.textContent = chip.line;
+      linhaEdicao.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao preencher chips para edição:', error);
+  }
 }
 
-document.getElementById("form-edicao-element").addEventListener("submit", (e) => {
+document.getElementById("form-edicao-element").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const index = clienteSelect.value;
-  const clientes = JSON.parse(localStorage.getItem("clientesAtivos")) || [];
-  if (!clientes[index]) return;
-
-  const clienteAntigo = clientes[index];
+  const clientId = clienteSelect.value;
+  if (!clientId) return;
 
   const novoPlano = planoEdicao.value;
   const novoVeiculo = veiculoEdicao.value;
@@ -152,64 +207,36 @@ document.getElementById("form-edicao-element").addEventListener("submit", (e) =>
   const novoImei = imeiEdicao.value;
   const novaLinha = linhaEdicao.value;
 
-  // Flags para saber se houve alterações
-  const planoAlterado = novoPlano !== clienteAntigo.plano;
-  const veiculoAlterado = novoVeiculo !== clienteAntigo.veiculo;
-  const equipamentoAlterado = novoImei && novoImei !== clienteAntigo.imei;
-  const linhaAlterada = novaLinha && novaLinha !== clienteAntigo.linha;
+  try {
+    const updateData = {
+      plan: novoPlano,
+      vehicle: novoVeiculo,
+      model: novoModelo,
+      imei: novoImei,
+      line: novaLinha
+    };
 
-  let estoqueNovos = JSON.parse(localStorage.getItem("estoqueNovos")) || [];
-  let estoqueUsados = JSON.parse(localStorage.getItem("estoqueUsados")) || [];
-  let chips = JSON.parse(localStorage.getItem("estoqueChips")) || [];
-
-  // Se trocou de equipamento, devolver o antigo ao estoque e remover o novo
-  if (equipamentoAlterado) {
-    estoqueUsados.push({
-      modelo: clienteAntigo.modelo,
-      imei: clienteAntigo.imei,
-      linha: clienteAntigo.linha
+    const response = await apiRequest(`${API_CONFIG.API_URL}/api/clients/${clientId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
     });
 
-    const imeiAlvo = novoImei.trim();
-    estoqueNovos = estoqueNovos.filter(eq => eq.imei.trim() !== imeiAlvo);
-    estoqueUsados = estoqueUsados.filter(eq => eq.imei.trim() !== imeiAlvo);
+    if (response.ok) {
+      alert('Cliente atualizado com sucesso!');
+
+      modalEdicao.classList.add("hidden");
+      document.getElementById("form-edicao-element").reset();
+
+      // Recarregar tabela
+      if (window.carregarClientesAtivos) {
+        window.carregarClientesAtivos();
+      }
+    } else {
+      const error = await response.json();
+      alert(error.message || 'Erro ao atualizar cliente');
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar cliente:', error);
+    alert('Erro ao atualizar cliente');
   }
-
-  // Se trocou de linha, remover a nova linha dos chips disponíveis
-  if (linhaAlterada) {
-    const linhaAlvo = novaLinha.trim();
-    chips = chips.filter(chip => chip.linha.trim() !== linhaAlvo);
-  }
-
-  // Atualiza o cliente
-  clientes[index] = {
-    ...clienteAntigo,
-    plano: novoPlano,
-    veiculo: novoVeiculo,
-    modelo: equipamentoAlterado ? novoModelo : clienteAntigo.modelo,
-    imei: equipamentoAlterado ? novoImei : clienteAntigo.imei,
-    linha: linhaAlterada ? novaLinha : clienteAntigo.linha
-  };
-
-  // Salva os dados atualizados
-  localStorage.setItem("clientesAtivos", JSON.stringify(clientes));
-  localStorage.setItem("estoqueNovos", JSON.stringify(estoqueNovos));
-  localStorage.setItem("estoqueUsados", JSON.stringify(estoqueUsados));
-  localStorage.setItem("estoqueChips", JSON.stringify(chips));
-
-  // Exibe popup de sucesso
-  const popup = document.getElementById("popup-confirmacao");
-  const popupMessage = document.getElementById("popup-message");
-  popupMessage.textContent = "Cliente atualizado com sucesso!";
-  popup.classList.remove("hidden");
-
-  const popupOk = document.getElementById("popup-ok");
-  popupOk.onclick = () => {
-    popup.classList.add("hidden");
-    modalEdicao.classList.add("hidden");
-    document.getElementById("form-edicao-element").reset();
-
-    const atualizarTabela = window.atualizarTabelaClientesAtivos || window.preencherTabelaClientesAtivos;
-    if (atualizarTabela) atualizarTabela(clientes);
-  };
 });

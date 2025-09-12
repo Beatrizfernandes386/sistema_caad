@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const modal = document.getElementById("modal-cadastro");
     const abrirModalBtn = document.getElementById("abrir-modal");
     const fecharModalBtn = document.getElementById("fechar-modal");
@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabela = document.getElementById("tabela-sinistros");
     const filtroInput = document.getElementById("filtro-sinistros");
     const importarInput = document.getElementById("importar-sinistros");
-  
-    let sinistros = JSON.parse(localStorage.getItem("sinistros")) || [];
+
+    let sinistros = [];
   
     // Abrir e fechar modal
     abrirModalBtn.addEventListener("click", () => modal.style.display = "block");
@@ -19,56 +19,90 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   
     // Salvar sinistro
-    formSinistro.addEventListener("submit", (e) => {
+    formSinistro.addEventListener("submit", async (e) => {
       e.preventDefault();
-  
+
       const novoSinistro = {
-        cliente: document.getElementById("cliente").value,
-        modelo: document.getElementById("modelo").value,
-        localSinistro: document.getElementById("localSinistro").value,
-        data: document.getElementById("data").value,
-        hora: document.getElementById("horaInforme").value,
-        tempoOperacao: `${document.getElementById("horas").value}h ${document.getElementById("minutos").value}min`,
-        localRecuperacao: document.getElementById("localRecuperacao").value,
-        relatorio: document.getElementById("relatorio").value,
+        client: document.getElementById("cliente").value,
+        vehicle_model: document.getElementById("modelo").value,
+        incident_location: document.getElementById("localSinistro").value,
+        incident_date: document.getElementById("data").value,
+        report_time: document.getElementById("horaInforme").value,
+        operation_hours: parseInt(document.getElementById("horas").value) || 0,
+        operation_minutes: parseInt(document.getElementById("minutos").value) || 0,
+        recovery_location: document.getElementById("localRecuperacao").value,
+        report: document.getElementById("relatorio").value,
       };
-  
-      sinistros.push(novoSinistro);
-      localStorage.setItem("sinistros", JSON.stringify(sinistros));
-      formSinistro.reset();
-      modal.style.display = "none";
-      renderizarTabela(sinistros);
+
+      try {
+        const response = await apiRequest(`${API_CONFIG.API_URL}/api/claims`, {
+          method: 'POST',
+          body: JSON.stringify(novoSinistro)
+        });
+
+        if (response.ok) {
+          formSinistro.reset();
+          modal.style.display = "none";
+          await carregarSinistros();
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Erro ao salvar sinistro');
+        }
+      } catch (error) {
+        console.error('Erro ao salvar sinistro:', error);
+        alert('Erro ao salvar sinistro');
+      }
     });
   
+    // Carregar sinistros da API
+    async function carregarSinistros() {
+      try {
+        const response = await apiRequest(`${API_CONFIG.API_URL}/api/claims`);
+        if (!response.ok) {
+          console.error('Erro ao carregar sinistros');
+          return;
+        }
+
+        sinistros = await response.json();
+        renderizarTabela(sinistros);
+      } catch (error) {
+        console.error('Erro ao carregar sinistros:', error);
+      }
+    }
+
     // Renderizar tabela
     function renderizarTabela(lista) {
       tabela.innerHTML = "";
       lista.forEach((sinistro, index) => {
         // Formatar a data no padrão pt-BR
-        let dataFormatada = sinistro.data;
-        if (sinistro.data) {
-          const dataObj = new Date(sinistro.data);
+        let dataFormatada = sinistro.incident_date;
+        if (sinistro.incident_date) {
+          const dataObj = new Date(sinistro.incident_date);
           if (!isNaN(dataObj)) {
             dataFormatada = dataObj.toLocaleDateString('pt-BR');
           }
         }
-    
+
+        const tempoOperacao = sinistro.operation_hours && sinistro.operation_minutes
+          ? `${sinistro.operation_hours}h ${sinistro.operation_minutes}min`
+          : '-';
+
         const tr = document.createElement("tr");
-    
+
         tr.innerHTML = `
-          <td>${sinistro.cliente}</td>
-          <td>${sinistro.modelo}</td>
-          <td>${sinistro.localSinistro}</td>
+          <td>${sinistro.client}</td>
+          <td>${sinistro.vehicle_model}</td>
+          <td>${sinistro.incident_location}</td>
           <td>${dataFormatada}</td>
-          <td>${sinistro.hora}</td>
-          <td>${sinistro.tempoOperacao}</td>
-          <td>${sinistro.localRecuperacao}</td>
+          <td>${sinistro.report_time || '-'}</td>
+          <td>${tempoOperacao}</td>
+          <td>${sinistro.recovery_location}</td>
           <td><button onclick="mostrarRelatorio(${index})">Ver</button></td>
         `;
-    
+
         tabela.appendChild(tr);
       });
-    }    
+    }
   
     // Mostrar relatório
     window.mostrarRelatorio = (index) => {
@@ -85,40 +119,34 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   
     // Filtro de pesquisa
-    filtroInput.addEventListener("input", () => {
+    filtroInput.addEventListener("input", async () => {
       const termo = filtroInput.value.toLowerCase();
-      const filtrados = sinistros.filter(s =>
-        s.cliente.toLowerCase().includes(termo) ||
-        s.modelo.toLowerCase().includes(termo) ||
-        s.localSinistro.toLowerCase().includes(termo) ||
-        s.localRecuperacao.toLowerCase().includes(termo)
-      );
-      renderizarTabela(filtrados);
-    });
-  
-    // Importar JSON
-    importarInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-  
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const dados = JSON.parse(reader.result);
-          if (Array.isArray(dados)) {
-            sinistros = sinistros.concat(dados);
-            localStorage.setItem("sinistros", JSON.stringify(sinistros));
-            renderizarTabela(sinistros);
-          } else {
-            alert("Arquivo inválido.");
-          }
-        } catch (err) {
-          alert("Erro ao ler o arquivo.");
+
+      if (termo.trim() === "") {
+        await carregarSinistros();
+        return;
+      }
+
+      try {
+        const response = await apiRequest(`${API_CONFIG.API_URL}/api/claims/search/${encodeURIComponent(termo)}`);
+        if (!response.ok) {
+          console.error('Erro ao filtrar sinistros');
+          return;
         }
-      };
-      reader.readAsText(file);
+
+        const filtrados = await response.json();
+        renderizarTabela(filtrados);
+      } catch (error) {
+        console.error('Erro ao filtrar sinistros:', error);
+      }
     });
   
-    renderizarTabela(sinistros);
+    // Importar JSON (desabilitado pois sinistros são gerados automaticamente)
+    importarInput.addEventListener("change", (e) => {
+      alert("Importação de sinistros não suportada.\nSinistros são registrados individualmente.");
+    });
+
+    // Inicializar
+    await carregarSinistros();
   });
   

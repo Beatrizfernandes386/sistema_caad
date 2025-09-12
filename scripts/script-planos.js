@@ -7,43 +7,45 @@
     const eliteCount = document.getElementById("elite-count");
     const masterCount = document.getElementById("master-count");
   
-    function carregarClientes() {
-      const clientes = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
-    
-      const basic = [];
-      const elite = [];
-      const master = [];
-    
-      clientes.forEach(cliente => {
-        if (cliente.plano === "BASIC") basic.push(cliente);
-        else if (cliente.plano === "ELITE") elite.push(cliente);
-        else if (cliente.plano === "MASTER") master.push(cliente);
-      });
-    
-      basicCount.textContent = basic.length;
-      eliteCount.textContent = elite.length;
-      masterCount.textContent = master.length;
-    
-      preencherTabela(basic, basicBody);
-      preencherTabela(elite, eliteBody);
-      preencherTabelaMaster(master);
-    
-      // SALVA RESUMO NO LOCALSTORAGE PARA O DASHBOARD
-      const resumoPlanos = {
-        BASIC: basic.length,
-        ELITE: elite.length,
-        MASTER: master.length
-      };
-      localStorage.setItem("planos", JSON.stringify(resumoPlanos));
-    }    
+    async function carregarClientes() {
+      try {
+        const response = await apiRequest(`${API_CONFIG.API_URL}/api/clients/active`);
+        if (!response.ok) {
+          console.error('Erro ao carregar clientes para planos');
+          return;
+        }
+
+        const clientes = await response.json();
+
+        const basic = [];
+        const elite = [];
+        const master = [];
+
+        clientes.forEach(cliente => {
+          if (cliente.plan === "BASIC") basic.push(cliente);
+          else if (cliente.plan === "ELITE") elite.push(cliente);
+          else if (cliente.plan === "MASTER") master.push(cliente);
+        });
+
+        basicCount.textContent = basic.length;
+        eliteCount.textContent = elite.length;
+        masterCount.textContent = master.length;
+
+        preencherTabela(basic, basicBody);
+        preencherTabela(elite, eliteBody);
+        preencherTabelaMaster(master);
+      } catch (error) {
+        console.error('Erro ao carregar clientes:', error);
+      }
+    }
   
     function preencherTabela(lista, tbody) {
       tbody.innerHTML = "";
       lista.forEach(cliente => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${cliente.nome}</td>
-          <td>${cliente.data}</td>
+          <td>${cliente.name}</td>
+          <td>${cliente.date}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -69,8 +71,8 @@
     
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${cliente.nome}</td>
-          <td>${cliente.data}</td>
+          <td>${cliente.name}</td>
+          <td>${cliente.date}</td>
           <td>${gerarBotao("bateria", beneficios.bateria, index)}</td>
           <td>${mostrarInfoUso("bateria", beneficios.bateria)}</td>
           <td>${gerarBotao("paneSeca", beneficios.paneSeca, index)}</td>
@@ -117,12 +119,12 @@
           const tipo = botao.dataset.tipo;
           const index = parseInt(botao.dataset.index);
           const cliente = lista[index];
-          const beneficio = cliente.beneficios[tipo];
-    
+          const beneficio = cliente.benefits[tipo];
+
           if (beneficio.restante > 0) {
             beneficio.restante -= 1;
             beneficio.ultimosUsos.push(new Date().toISOString().split("T")[0]);
-            salvarBeneficio(cliente.nome, cliente.beneficios);
+            salvarBeneficio(cliente.id, cliente.benefits);
             carregarClientes(); // Recarrega a tabela
           } else {
             alert("Limite atingido.");
@@ -131,12 +133,20 @@
       });
     }
     
-    function salvarBeneficio(nomeCliente, beneficiosAtualizados) {
-      const clientes = JSON.parse(localStorage.getItem("clientesAtivos") || "[]");
-      const cliente = clientes.find(c => c.nome === nomeCliente);
-      if (cliente) {
-        cliente.beneficios = beneficiosAtualizados;
-        localStorage.setItem("clientesAtivos", JSON.stringify(clientes));
+    async function salvarBeneficio(clientId, beneficiosAtualizados) {
+      try {
+        const response = await apiRequest(`${API_CONFIG.API_URL}/api/clients/${clientId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            benefits: beneficiosAtualizados
+          })
+        });
+
+        if (!response.ok) {
+          console.error('Erro ao salvar benefícios');
+        }
+      } catch (error) {
+        console.error('Erro ao salvar benefícios:', error);
       }
     }
     
@@ -147,6 +157,9 @@
       });
     });
   
-    carregarClientes();
+    // Inicialização
+    window.addEventListener("load", async () => {
+      await carregarClientes();
+    });
 
   
